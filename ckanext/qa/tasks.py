@@ -12,6 +12,7 @@ import routes
 from ckan.common import _
 
 from ckan.lib import i18n
+from ckan.lib import uploader
 from ckan.plugins import toolkit
 import ckan.lib.helpers as ckan_helpers
 from sniff_format import sniff_file_format
@@ -356,6 +357,31 @@ def score_by_sniffing_data(archival, resource, score_reasons):
         return (None, None)
     # Analyse the cached file
     filepath = archival.cache_filepath
+
+    # # if filepath does not exist on disk, then lets see if its an upload or a url
+    # # download to temp space, then delete post checking if can't use in memory checking
+    #
+    # # download file to temp use that for rest of call.
+    # # use logic found in xloader for chunk file downloading
+    # # ilepath = temp file
+    # #    return (None, None)
+    # if not os.path.exists(filepath):
+    #     from ckan import model
+    #     context_ = {'model': model, 'ignore_auth': True, 'session': model.Session}
+    #     resource = toolkit.get_action('resource_show')(context_, {'id': archival.resource_id})
+    #     if resource.get('url_type') == 'upload':
+    #         # its a resource file not a url with archiver cached copy
+    #         upload = uploader.get_resource_uploader(resource)
+    #         upload.metadata(archival.resource_id)
+    #         upload.download(archival.resource_id) #this is a stream of file or redirect to file
+    #     else:
+    #         # its a cache archive file
+    #         folder_path, filename = os.path.split(filepath)
+    #         upload = uploader.get_uploader(folder_path)
+    #         upload.metadata(filename)
+    #         upload.download(filename) #this is a stream of file or redirect to file
+
+    #Legacy processing
     if not os.path.exists(filepath):
         score_reasons.append(_('Cache filepath does not exist: "%s".') % filepath)
         return (None, None)
