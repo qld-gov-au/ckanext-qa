@@ -80,14 +80,14 @@ def openness_index(include_sub_organizations=False):
         row = OrderedDict((
             ('organization_title', results[org_name]['organization_title']),
             ('organization_name', org_name),
-            ('total_stars', total_stars),
-            ('average_stars', average_stars),
+            (_('total_stars'), total_stars),
+            (_('average_stars'), average_stars),
             ))
         row.update(jsonify_counter(org_counts['score_counts']))
         table.append(row)
 
-    table.sort(key=lambda x: (-x['total_stars'],
-                              -x['average_stars']))
+    table.sort(key=lambda x: (-x[_('total_stars')],
+                              -x[_('average_stars')]))
 
     # Get total number of packages & resources
     num_packages = model.Session.query(model.Package)\
@@ -147,8 +147,8 @@ def openness_for_organization(organization=None, include_sub_organizations=False
 
     return {'table': rows,
             'score_counts': jsonify_counter(score_counts),
-            'total_stars': total_stars,
-            'average_stars': average_stars,
+            _('total_stars'): total_stars,
+            _('average_stars'): average_stars,
             'num_packages_scored': len(rows),
             'num_packages': num_packages,
             }
@@ -162,7 +162,7 @@ def openness_report_combinations():
 
 
 openness_report_info = {
-    'name': 'openness',
+    'name': _('openness'),
     'title': _('Openness (Five Stars)'),
     'description': _('Datasets graded on Tim Berners Lees\' Five Stars of Openness - openly licensed,'
                      ' openly accessible, structured, open format, URIs for entities, linked.'),

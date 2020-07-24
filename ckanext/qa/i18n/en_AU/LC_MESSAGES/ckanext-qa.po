@@ -1,17 +1,18 @@
-# Translations template for ckanext-qa.
-# Copyright (C) 2020 ORGANIZATION
+# English (Australia) translations for ckanext-qa.
+# Copyright (C) 2017 ORGANIZATION
 # This file is distributed under the same license as the ckanext-qa project.
-# FIRST AUTHOR <EMAIL@ADDRESS>, 2020.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2017.
 #
-#, fuzzy
 msgid ""
 msgstr ""
 "Project-Id-Version: ckanext-qa 2.0\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
 "POT-Creation-Date: 2020-07-09 01:18+0000\n"
-"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"PO-Revision-Date: 2020-07-01 16:37+0000\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
-"Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: en_AU\n"
+"Language-Team: en_AU <LL@li.org>\n"
+"Plural-Forms: nplurals=2; plural=(n != 1)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -19,19 +20,19 @@ msgstr ""
 
 #: ckanext/qa/reports.py:83 ckanext/qa/reports.py:89 ckanext/qa/reports.py:150
 msgid "total_stars"
-msgstr ""
+msgstr "total_ticks"
 
 #: ckanext/qa/reports.py:84 ckanext/qa/reports.py:90 ckanext/qa/reports.py:151
 msgid "average_stars"
-msgstr ""
+msgstr "average_ticks"
 
 #: ckanext/qa/reports.py:165
 msgid "openness"
-msgstr ""
+msgstr "data_usability_rating"
 
 #: ckanext/qa/reports.py:166
 msgid "Openness (Five Stars)"
-msgstr ""
+msgstr "Data usability rating"
 
 #: ckanext/qa/reports.py:167
 msgid ""
@@ -39,6 +40,9 @@ msgid ""
 "licensed, openly accessible, structured, open format, URIs for entities, "
 "linked."
 msgstr ""
+"Datasets rated according to rules similar to those used by the "
+"Australian Government's Linked Data Rating derived from "
+"(but different to) Tim Berners-Lee's Five Stars of Openness."
 
 #: ckanext/qa/tasks.py:251
 msgid "Could not understand the file format, therefore score is 1."
@@ -104,8 +108,8 @@ msgstr ""
 #: ckanext/qa/tasks.py:368
 #, python-format
 msgid ""
-"Content of file appeared to be format \"%s\" which receives openness score: "
-"%s."
+"Content of file appeared to be format \"%s\" which receives openness "
+"score: %s."
 msgstr ""
 
 #: ckanext/qa/tasks.py:372
@@ -136,8 +140,8 @@ msgstr ""
 #: ckanext/qa/tasks.py:414
 #, python-format
 msgid ""
-"URL extension \"%s\" relates to format \"%s\" but a score for that format is "
-"not configured, so giving it default score %s."
+"URL extension \"%s\" relates to format \"%s\" but a score for that format"
+" is not configured, so giving it default score %s."
 msgstr ""
 
 #: ckanext/qa/tasks.py:418
@@ -229,7 +233,7 @@ msgstr ""
 #: ckanext/qa/templates/report/openness.html:33
 #: ckanext/qa/templates/report/openness.html:56
 msgid "Total stars"
-msgstr ""
+msgstr "Total ticks"
 
 #: ckanext/qa/templates/report/openness.html:34
 #: ckanext/qa/templates/report/openness.html:55

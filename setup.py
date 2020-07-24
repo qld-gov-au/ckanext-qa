@@ -17,20 +17,16 @@ setup(
     include_package_data=True,
     zip_safe=False,
     install_requires=[
-        'ckanext-archiver>=2.0',
-        'ckanext-report',
-        'SQLAlchemy>=0.6.6',
-        'requests',
-        'xlrd>=0.8.0',
-        'messytables>=0.8',
-        'python-magic>=0.4',
-        'progressbar',
-        'six>=1.9' # until messytables->html5lib releases https://github.com/html5lib/html5lib-python/pull/301
+      # CKAN extensions should not list dependencies here, but in a separate
+      # ``requirements.txt`` file.
+      #
+      # http://docs.ckan.org/en/latest/extensions/best-practices.html#add-third-party-libraries-to-requirements-txt
     ],
     tests_require=[
-        'nose',
-        'mock',
-        'flask'
+      # CKAN extensions should not list dependencies here, but in a separate
+      # ``dev-requirements.txt`` file.
+      #
+      # http://docs.ckan.org/en/latest/extensions/best-practices.html#add-third-party-libraries-to-requirements-txt
     ],
     entry_points='''
     [paste.paster_command]
@@ -41,5 +37,15 @@ setup(
 
     [ckan.celery_task]
     tasks=ckanext.qa.celery_import:task_imports
+
+    [babel.extractors]
+    ckan = ckan.lib.extract:extract_ckan
     ''',
+    message_extractors={
+        'ckanext': [
+            ('**.py', 'python', None),
+            ('**.js', 'javascript', None),
+            ('**/templates/**.html', 'ckan', None),
+        ],
+    }
 )
