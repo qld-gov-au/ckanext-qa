@@ -1,6 +1,14 @@
 #!/bin/sh -e
 
-echo "NO_START=0\nJETTY_HOST=127.0.0.1\nJETTY_PORT=8983\nJAVA_HOME=$JAVA_HOME" | sudo tee /etc/default/jetty
-sudo cp ckan/ckan/config/solr/schema.xml /etc/solr/conf/schema.xml
-sudo service jetty restart
-nosetests --with-pylons=subdir/test-core.ini --with-coverage --cover-package=ckanext.archiver --cover-inclusive --cover-erase --cover-tests
+# !/bin/bash
+ver=$(python -c"import sys; print(sys.version_info.major)")
+if [ $ver -eq 2 ]; then
+    echo "python version 2 running nosetests"
+    nosetests --with-pylons=subdir/test-core.ini --with-coverage --cover-package=ckanext.qa --cover-inclusive --cover-erase --cover-tests
+elif [ $ver -eq 3 ]; then
+    echo "python version 3 running pytest"
+    pytest --ckan-ini=subdir/test-core.ini --cov=ckanext.qa ckanext/qa/tests
+else
+    echo "Unknown python version: $ver"
+    exit 1
+fi

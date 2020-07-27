@@ -50,3 +50,10 @@ coverage.xml
 # Sphinx documentation
 docs/_build/
 
+#cicd travis
+subdir
+src
+ckan
+ckanext-archiver
+ckanext-report/
+.noseids

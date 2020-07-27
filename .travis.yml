@@ -1,24 +1,25 @@
+os: linux
 language: python
+dist: bionic
 python:
     - "2.7"
 env:
-  - CKANVERSION=master
-  - CKANVERSION=2.6
-  - CKANVERSION=2.7
-  - CKANVERSION=2.8
+#    - CKAN_GIT_REPO=ckan/ckan CKANVERSION=master ARCHIVER_GIT_REPO=ckan ARCHIVER_BRANCH=master REPORT_GIT_REPO=datagovuk REPORT_BRANCH=master
+#    - CKAN_GIT_REPO=ckan/ckan CKANVERSION=2.6 ARCHIVER_GIT_REPO=ckan ARCHIVER_BRANCH=master REPORT_GIT_REPO=datagovuk REPORT_BRANCH=master
+#    - CKAN_GIT_REPO=ckan/ckan CKANVERSION=2.7 ARCHIVER_GIT_REPO=ckan ARCHIVER_BRANCH=master REPORT_GIT_REPO=datagovuk REPORT_BRANCH=master
+    - CKAN_GIT_REPO=ckan/ckan CKANVERSION=2.8 ARCHIVER_GIT_REPO=ckan ARCHIVER_BRANCH=master REPORT_GIT_REPO=datagovuk REPORT_BRANCH=master
+    - CKAN_GIT_REPO=qld-gov-au/ckan CKAN_BRANCH=qgov-master ARCHIVER_GIT_REPO=qld-gov-au ARCHIVER_BRANCH=2.1.0-qgov.1 REPORT_GIT_REPO=qld-gov-au REPORT_BRANCH=0.1
+    - CKAN_GIT_REPO=qld-gov-au/ckan CKAN_BRANCH=qgov-master ARCHIVER_GIT_REPO=qld-gov-au ARCHIVER_BRANCH=develop REPORT_GIT_REPO=qld-gov-au REPORT_BRANCH=develop
 services:
   - redis-server
   - postgresql
 install:
+  - pip install -U pip wheel
   - bash bin/travis-build.bash
   - pip install coveralls
 script: sh bin/travis-run.sh
 after_success:
     - coveralls
-
-# the new trusty images of Travis cause build errors with psycopg2, see https://github.com/travis-ci/travis-ci/issues/8897
-dist: trusty
-group: deprecated-2017Q4
 
 stages:
   - Flake8
@@ -29,12 +30,15 @@ jobs:
     - stage: Flake8
       env: FLAKE8=True
       install:
-        - bash bin/travis-build.bash
-        - pip install flake8==3.5.0
-        - pip install pycodestyle==2.3.0
+        - pip install -U pip wheel
+        - sh bin/travis-flake.sh
       script:
-         - flake8 --version
-         # stop the build if there are Python syntax errors or undefined names
-         - flake8 . --count --select=E901,E999,F821,F822,F823 --show-source --statistics --exclude ckan,ckanext-archiver
-         # exit-zero treats all errors as warnings.  The GitHub editor is 127 chars wide
-         - flake8 . --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics --exclude ckan,ckanext-archiver
+        -  sh bin/travis-flake-run.sh
+    - stage: master python3
+      env: CKAN_GIT_REPO=ckan/ckan ARCHIVER_GIT_REPO=ckan ARCHIVER_BRANCH=master REPORT_GIT_REPO=datagovuk REPORT_BRANCH=master
+      python: "3.6"
+  allow_failures:
+    - env: CKAN_GIT_REPO=ckan/ckan ARCHIVER_GIT_REPO=ckan ARCHIVER_BRANCH=master REPORT_GIT_REPO=datagovuk REPORT_BRANCH=master
+      python: "3.6"
+
+cache: pip
