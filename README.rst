@@ -188,11 +188,11 @@ The qa does not have ratings for dataset/resource
 
 A brief background on the workflow of the ``archiver`` and ``qa``  extensions when a dataset is created or updated to attempt to explain what is going on here.
 
-When a dataset gets created or updated the following steps happened:
+When a dataset gets created or updated the following steps happen:
 
-#. CKAN sends a ``notify`` event to the ``archiver`` extension with the dataset and resources metadata to tell it something has happened to this dataset
+#. CKAN sends a ``notify`` event to the ``archiver`` extension with the dataset and resources metadata to tell it something has happened to this dataset.
 
-#. The archiver then has some logic to check if this dataset needs to be archived
+#. The archiver then has some logic to check if this dataset needs to be archived;
 
    #. Is it a new dataset
 
@@ -218,15 +218,15 @@ When a dataset gets created or updated the following steps happened:
 
    #. If any resources have the status ``"status": "Archived successfully"`` the archiver extension will broadcast an event ``package-archived`` to the ``qa`` extension
 
-      #. The ``qa`` extension will then analysis the resource file to determine the file format, either from the file uploaded or the downloaded cached copy of the external resource.
+      #. The ``qa`` extension will then analyse the resource file to determine the file format, either from the file uploaded or the downloaded cached copy of the external resource.
 
-      #. If the ``qa`` extension is successfully in determining the file format type, it will apply the format score from the ``resource_format_openness_scores.json`` file
+      #. If the ``qa`` extension is successful in determining the file format type, it will apply the format score from the ``resource_format_openness_scores.json`` file
 
-As you can see in the above scenario the broken link resource is not successfully archived so the ``archiver`` never sends an event to the ``qa`` extension to apply a score on the resource. If there was a another resource for this dataset which was successfully archived (via a file uploaded or external resource without a broken resource link) it would send an event to the qa extension and calculate a score for the dataset.
+As you can see in the above scenario the broken link resource is not successfully archived so the ``archiver`` never sends an event to the ``qa`` extension to apply a score on the resource. If there was another resource for this dataset which was successfully archived (via a file uploaded or external resource without a broken resource link) it would send an event to the qa extension and calculate a score for the dataset.
 
 I believe this is by design because the ``qa`` needs a local copy of the file to determine the file format and if the resource has a broken link this is not possible.
 
-As a general business practise no one should be really creating a new resource with a broken link and if they did so unintentionally this information is shown on the resource page letting the dataset creator aware that the link is broken.
+As a general business practice no one should be really creating a new resource with a broken link and if they did so unintentionally this information is shown on the resource page letting the dataset creator know that the link is broken.
 
 .. image:: qa_display_qld.png
     :alt: QLD Openness report (star ratings) with error
