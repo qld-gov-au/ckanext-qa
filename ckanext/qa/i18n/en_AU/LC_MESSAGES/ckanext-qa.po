@@ -228,7 +228,7 @@ msgstr ""
 #: ckanext/qa/templates/report/openness.html:28
 #: ckanext/qa/templates/report/openness.html:85
 msgid "Organization"
-msgstr ""
+msgstr "Organisation"
 
 #: ckanext/qa/templates/report/openness.html:33
 #: ckanext/qa/templates/report/openness.html:56
