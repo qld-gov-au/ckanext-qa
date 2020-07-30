@@ -183,3 +183,50 @@ The archiver info shows on the dataset/resource pages but the QA doesn't
 
 You need to ensure that in your ``ckan.plugins`` you have ``qa`` listed BEFORE ``archiver`` or else the template inheritance doesn't work and this happens.
 
+The qa does not have ratings for dataset/resource
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+A brief background on the workflow of the ``archiver`` and ``qa``  extensions when a dataset is created or updated to attempt to explain what is going on here.
+
+When a dataset gets created or updated the following steps happen:
+
+#. CKAN sends a ``notify`` event to the ``archiver`` extension with the dataset and resources metadata to tell it something has happened to this dataset.
+
+#. The archiver then has some logic to check if this dataset needs to be archived;
+
+   #. Is it a new dataset
+
+   #. Has the ‘license’ changed since last archival
+
+   #. Any resources that have been ‘added’ or ‘removed’
+
+   #. Any resources have changed their ‘URL’ or ‘format’
+
+#. If any of the conditions are met above it adds a background task to archive the dataset’s resources
+
+   #. For each resource, it will create an archive record
+
+      #. If the resource is a file upload, it does not need to download the file
+
+         #. Creates an archive record referencing the resource file uploaded
+
+      #. If the resource is an external URL link, it will attempt to download the file
+
+         #. If successful at downloading the external resource, it will create an archive record referencing the locally cached copy of the resource file and ``"status": "Archived successfully"``
+
+         #. If unsuccessful at downloading external resource it will create an archive record with ``"status": "Download error"``
+
+   #. If any resources have the status ``"status": "Archived successfully"`` the archiver extension will broadcast an event ``package-archived`` to the ``qa`` extension
+
+      #. The ``qa`` extension will then analyse the resource file to determine the file format, either from the file uploaded or the downloaded cached copy of the external resource.
+
+      #. If the ``qa`` extension is successful in determining the file format type, it will apply the format score from the ``resource_format_openness_scores.json`` file
+
+As you can see in the above scenario the broken link resource is not successfully archived so the ``archiver`` never sends an event to the ``qa`` extension to apply a score on the resource. If there was another resource for this dataset which was successfully archived (via a file uploaded or external resource without a broken resource link) it would send an event to the qa extension and calculate a score for the dataset.
+
+I believe this is by design because the ``qa`` needs a local copy of the file to determine the file format and if the resource has a broken link this is not possible.
+
+As a general business practice no one should be really creating a new resource with a broken link and if they did so unintentionally this information is shown on the resource page letting the dataset creator know that the link is broken.
+
+.. image:: qa_display_qld.png
+    :alt: QLD Openness report (star ratings) with error
