@@ -17,6 +17,8 @@ else
     echo "Unknown python version: $ver"
 fi
 
+cliCommand=paster
+
 echo "Installing CKAN and its Python dependencies..."
 if [ ! -d ckan ]; then
 
@@ -26,19 +28,41 @@ if [ ! -d ckan ]; then
 
   if [ "${CKAN_BRANCH}dd" == 'dd' ]; then
     #remote lookup tags, and get latest by version-sort
-    CKAN_TAG=$(git ls-remote --tags https://github.com/$CKAN_GIT_REPO | grep refs/tags/ckan-$CKANVERSION | awk '{print $2}'| sort --version-sort | tail -n 1 | sed  's|refs/tags/||' )
+    CKAN_TAG=$(git ls-remote --tags https://github.com/$CKAN_GIT_REPO/ckan | grep refs/tags/ckan-$CKANVERSION | awk '{print $2}'| sort --version-sort | tail -n 1 | sed  's|refs/tags/||' )
     echo "CKAN tag version $CKANVERSION is: ${CKAN_TAG#ckan-}"
-    git clone --depth=50 --branch=$CKAN_TAG https://github.com/$CKAN_GIT_REPO ckan
+    git clone --depth=50 --branch=$CKAN_TAG https://github.com/$CKAN_GIT_REPO/ckan ckan
+    if [ $CKANVERSION \< '2.9' ]
+    then
+       cliCommand=paster
+    else
+        cliCommand=ckan
+    fi
   else
     echo "CKAN version: $CKAN_BRANCH"
-    git clone --depth=50 --branch=$CKAN_BRANCH https://github.com/$CKAN_GIT_REPO ckan
+    git clone --depth=50 --branch=$CKAN_BRANCH https://github.com/$CKAN_GIT_REPO/ckan ckan
+    #Master is on 2.9+ so needs ckan for cliCommand
+    if [ $CKAN_BRANCH == 'master' ]
+    then
+       cliCommand=ckan
+    fi
   fi
 fi
 
 pushd ckan
 
 if [ $ver -eq 3 ]; then
-pip install -r requirement-setuptools.txt
+# install the recommended version of setuptools
+if [ -f requirement-setuptools.txt ]
+then
+    echo "Updating setuptools..."
+    pip install -r requirement-setuptools.txt
+fi
+fi
+
+if [ $CKANVERSION == '2.7' ]
+then
+    echo "Installing setuptools"
+    pip install setuptools==39.0.1
 fi
 
 if [ -f requirements-py2.txt ] && [ $ver -eq 2 ]; then
@@ -50,12 +74,18 @@ pip install -r dev-requirements.txt
 python setup.py develop
 
 echo "Initialising the database..."
-paster db init -c test-core.ini
-
+if [ "$cliCommand" == "paster" ]; then
+  paster db init -c test-core.ini
+else
+  #ckan comand has config first then options.
+  ckan -c test-core.ini db init
+fi
 popd
 
 
 echo "SOLR config..."
+sudo cp ckan/ckan/config/solr/schema.xml /etc/solr/conf/schema.xml
+
 # solr is multicore for tests on ckan master now, but it's easier to run tests
 # on Travis single-core still.
 # see https://github.com/ckan/ckan/issues/2972
@@ -102,19 +132,25 @@ echo "Moving test-core.ini into a subdir..."
 mkdir -p subdir
 cp test-core.ini subdir
 
-echo "start solr"
-# Fix solr-jetty starting issues https://stackoverflow.com/a/56007895
-# https://github.com/Zharktas/ckanext-report/blob/py3/bin/travis-run.bash
-sudo mkdir -p /etc/systemd/system/jetty9.service.d
-printf "[Service]\nReadWritePaths=/var/lib/solr" | sudo tee /etc/systemd/system/jetty9.service.d/solr.conf
-sed '16,21d' /etc/solr/solr-jetty.xml | sudo tee /etc/solr/solr-jetty.xml
-sudo systemctl daemon-reload || echo "all good"
+#ensure we handle jetty8 and jetty9
+if [[ "$TRAVIS_DIST" == "trusty" ]]; then
+  printf "NO_START=0\nJETTY_HOST=127.0.0.1\nJETTY_PORT=8983\nJAVA_HOME=$JAVA_HOME" | sudo tee /etc/default/jetty
+  sudo service jetty restart
 
-printf "NO_START=0\nJETTY_HOST=127.0.0.1\nJETTY_ARGS=\"jetty.http.port=8983\"\nJAVA_HOME=$JAVA_HOME" | sudo tee /etc/default/jetty9
-sudo cp ckan/ckan/config/solr/schema.xml /etc/solr/conf/schema.xml
-sudo service jetty9 restart
+else
+  # expect we are in current os, i.e. bionic
+  #[ "$TRAVIS_DIST" == "bionic" ]; then
+  # Fix solr-jetty starting issues https://stackoverflow.com/a/56007895
+  # https://github.com/Zharktas/ckanext-report/blob/py3/bin/travis-run.bash
+  sudo mkdir -p /etc/systemd/system/jetty9.service.d
+  printf "[Service]\nReadWritePaths=/var/lib/solr" | sudo tee /etc/systemd/system/jetty9.service.d/solr.conf
+  sed '16,21d' /etc/solr/solr-jetty.xml | sudo tee /etc/solr/solr-jetty.xml
+  sudo systemctl daemon-reload || echo "all good"
+  printf "NO_START=0\nJETTY_HOST=127.0.0.1\nJETTY_ARGS=\"jetty.http.port=8983\"\nJAVA_HOME=$JAVA_HOME" | sudo tee /etc/default/jetty9
+  sudo service jetty9 restart
+fi
 
-# Wait for jetty9 to start
+# Wait for jetty to start
 timeout 20 bash -c 'while [[ "$(curl -s -o /dev/null -I -w %{http_code} http://localhost:8983)" != "200" ]]; do sleep 2;done'
 
 

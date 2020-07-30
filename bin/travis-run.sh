@@ -1,14 +1,23 @@
-#!/bin/sh -e
+#!/bin/bash
+set -ex
 
-# !/bin/bash
 ver=$(python -c"import sys; print(sys.version_info.major)")
-if [ $ver -eq 2 ]; then
+testFramework=nose
+if [ "${CKAN_BRANCH}dd" == 'dd' ]; then
+  if [ "$CKANVERSION" == '2.9' ]
+    then
+       testFramework=pytest
+    else
+        testFramework=nose
+    fi
+elif [ "$CKAN_BRANCH" == 'master' ]; then
+       testFramework=pytest
+fi
+
+if [[ $ver -eq 3  ||  "$testFramework" == "pytest" ]]; then
+    echo "python version 3 or 2.9+ ckan running pytest"
+    pytest --ckan-ini=subdir/test.ini --cov=ckanext.qa ckanext/qa/tests
+else
     echo "python version 2 running nosetests"
     nosetests --with-pylons=subdir/test-core.ini --with-coverage --cover-package=ckanext.qa --cover-inclusive --cover-erase --cover-tests
-elif [ $ver -eq 3 ]; then
-    echo "python version 3 running pytest"
-    pytest --ckan-ini=subdir/test-core.ini --cov=ckanext.qa ckanext/qa/tests
-else
-    echo "Unknown python version: $ver"
-    exit 1
 fi
