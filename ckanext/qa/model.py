@@ -35,8 +35,8 @@ class QA(Base):
     openness_score_reason = Column(types.UnicodeText)
     format = Column(types.UnicodeText)
 
-    created = Column(types.DateTime, default=datetime.datetime.now)
-    updated = Column(types.DateTime, default=datetime.datetime.now)
+    created = Column(types.DateTime, default=datetime.datetime.utcnow)
+    updated = Column(types.DateTime, default=datetime.datetime.utcnow)
 
     def __repr__(self):
         summary = 'score=%s format=%s' % (self.openness_score, self.format)

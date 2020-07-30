@@ -19,7 +19,7 @@ from progressbar import ProgressBar, Percentage, Bar, ETA
 
 START_OF_TIME = datetime.datetime(1980, 1, 1)
 END_OF_TIME = datetime.datetime(9999, 12, 31)
-TODAY = datetime.datetime.now()
+TODAY = datetime.datetime.utcnow()
 
 # NB put no CKAN imports here, or logging breaks
 
