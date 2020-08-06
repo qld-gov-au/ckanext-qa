@@ -9,6 +9,7 @@ import os
 import tempfile
 import time
 import traceback
+
 import urlparse
 import routes
 
@@ -610,7 +611,7 @@ def save_qa_result(resource, qa_result):
     import ckan.model as model
     from ckanext.qa.model import QA
 
-    now = datetime.datetime.now()
+    now = datetime.datetime.utcnow()
 
     qa = QA.get_for_resource(resource.id)
     if not qa:
