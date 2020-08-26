@@ -39,6 +39,7 @@ def openness_index(include_sub_organizations=False):
         pkgs = model.Session.query(model.Package) \
                     .filter_by(owner_org=org.id) \
                     .filter_by(state='active') \
+                    .filter_by(private=False) \
                     .all()
         for pkg in pkgs:
             try:
@@ -120,6 +121,7 @@ def openness_for_organization(organization=None, include_sub_organizations=False
         pkgs = model.Session.query(model.Package) \
                     .filter_by(owner_org=org.id) \
                     .filter_by(state='active') \
+                    .filter_by(private=False) \
                     .all()
         num_packages += len(pkgs)
         for pkg in pkgs:
