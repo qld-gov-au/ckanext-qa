@@ -42,8 +42,8 @@
           {% for n in range(6) %}
             <td>{{ row.get(n|string, 0) }}</td>
           {% endfor %}
-          <td>{{ row['total_stars'] }}</td>
-          <td>{{ row['average_stars'] }}</td>
+          <td>{{ row[_('total_stars')] }}</td>
+          <td>{{ row[_('average_stars')] }}</td>
         </tr>
       {% endfor %}
     </tbody>
@@ -52,8 +52,8 @@
 {% else %}
 
   <ul>
-    <li>{% trans %}Average score{% endtrans %}: {{ c.data['average_stars'] }}</li>
-    <li>{% trans %}Total stars{% endtrans %}: {{ c.data['total_stars'] }}</li>
+    <li>{% trans %}Average score{% endtrans %}: {{ c.data[_('average_stars')] }}</li>
+    <li>{% trans %}Total stars{% endtrans %}: {{ c.data[_('total_stars')] }}</li>
     <li>{% trans %}Datasets given a score{% endtrans %}: {{ c.data['num_packages_scored'] }} / {{ c.data['num_packages'] }}</li>
     <li>{% trans %}Score frequencies{% endtrans %}:
       <table class="table table-striped table-bordered table-condensed">
