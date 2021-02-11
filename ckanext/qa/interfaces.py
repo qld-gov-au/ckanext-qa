@@ -17,7 +17,7 @@ class IQA(Interface):
         for observer in plugins.PluginImplementations(cls):
             try:
                 result = observer.custom_resource_score(resource, resource_score)
-            except Exception, ex:
+            except Exception as ex:
                 log.exception(ex)
                 # We reraise all exceptions so they are obvious there
                 # is something wrong
