@@ -34,7 +34,9 @@ jobs:
     needs: lint
     strategy:
       matrix:
-        ckan-version: [2.9, 2.9-py2, 2.8, 2.7]
+        # not ready for CKAN 2.9 yet
+        # ckan-version: [2.9, 2.9-py2, 2.8, 2.7]
+        ckan-version: [2.8, 2.7]
         env:
           - { ARCHIVER_GIT_REPO: "ckan", ARCHIVER_BRANCH: "master", REPORT_GIT_REPO: "datagovuk", REPORT_BRANCH: "master" }
           - { ARCHIVER_GIT_REPO: "qld-gov-au", ARCHIVER_BRANCH: "2.1.0-qgov.1", REPORT_GIT_REPO: "qld-gov-au", REPORT_BRANCH: "0.1" }
