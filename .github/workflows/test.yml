@@ -129,5 +129,5 @@ jobs:
     - name: Run all tests
       run: |
         #pytest --ckan-ini=test.ini --cov=ckanext.qa ckanext/qa/tests
-        nosetests --nologcapture --with-pylons=test.ini --with-coverage --cover-package=ckanext.qa --cover-inclusive --cover-erase --cover-tests
+        nosetests --with-pylons=test.ini --with-coverage --cover-package=ckanext.qa --cover-inclusive --cover-erase --cover-tests
 
