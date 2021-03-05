@@ -4,7 +4,7 @@ messytables==0.15.2
 progressbar==2.3
 #SQLAlchemy>=0.6.6 #in ckancore
 #requests==2.11.1 #in ckancore
-#six==1.11.0 #in ckancore
+six>=1.0.0 #in ckancore
 
--e git+https://github.com/qld-gov-au/ckanext-archiver.git@2.1.0-qgov.1#egg=ckanext-archiver
--e git+https://github.com/qld-gov-au/ckanext-report.git@0.1#egg=ckanext-report
+ckanext-archiver
+ckanext-report
