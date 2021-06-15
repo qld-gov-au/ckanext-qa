@@ -91,7 +91,7 @@ class TestTask(BaseCase):
     def test_trigger_on_archival(cls):
         # create package
         context = {'model': model, 'ignore_auth': True, 'session': model.Session, 'user': 'test'}
-        pkg = {'name': 'testpkg', 'license_id': 'uk-ogl', 'resources': [
+        pkg = {'name': 'testpkg', 'owner_org': _test_org().id, 'license_id': 'uk-ogl', 'resources': [
             {'url': 'http://test.com/', 'format': 'CSV', 'description': 'Test'}
         ]}
         pkg = get_action('package_create')(context, pkg)
