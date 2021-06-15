@@ -12,7 +12,6 @@ commands:
       ahoy clean
       (docker network prune -f > /dev/null && docker network inspect amazeeio-network > /dev/null || docker network create amazeeio-network)
       ahoy up -- --build --force-recreate
-      ahoy install-dev
       ahoy install-site
       ahoy title "Build complete"
       ahoy doctor
@@ -93,12 +92,6 @@ commands:
       git ls-files --others -i --exclude-from=.git/info/exclude | xargs chmod 777
       git ls-files --others -i --exclude-from=.git/info/exclude | xargs rm -Rf
       find . -type d -not -path "./.git/*" -empty -delete
-
-  install-dev:
-    usage: Install dependencies.
-    cmd: |
-      ahoy cli "pip install -r requirements-dev.txt"
-    hide: true
 
   flush-redis:
     usage: Flush Redis cache.
