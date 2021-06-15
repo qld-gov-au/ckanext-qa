@@ -94,14 +94,14 @@ def sniff_file_format(filepath):
             log.warning('Mimetype not recognised by CKAN as a data format: %s',
                         mime_type)
 
-    if not format_:
+    if not format_ and is_excel(filepath):
         # Excel files sometimes not picked up by magic, so try alternative
-        if is_excel(filepath):
-            format_ = {'format': 'XLS'}
-        # BSD file picks up some files that Magic misses
-        # e.g. some MS Word files
-        if not format_:
-            format_ = run_bsd_file(filepath)
+        format_ = {'format': 'XLS'}
+
+    # BSD file picks up some files that Magic misses
+    # e.g. some MS Word files
+    if not format_:
+        format_ = run_bsd_file(filepath)
 
     if format_:
         log.info('Mimetype translates to filetype: %s',
@@ -238,6 +238,9 @@ def _is_spreadsheet(table_set, format_):
                                  get_cells_per_row(num_cells, num_rows),
                                  num_cells, num_rows)
                         return True
+    except messytables.ReadError:
+        log.info('Not %s - unable to parse as a table', format_)
+        return False
     finally:
         pass
     # if file is short then be more lenient
