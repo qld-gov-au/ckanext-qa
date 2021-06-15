@@ -19,4 +19,3 @@ ckan_cli user add "${CKAN_USER_NAME}"\
  email="${CKAN_USER_EMAIL}"\
  password="${CKAN_USER_PASSWORD}"
 ckan_cli sysadmin add "${CKAN_USER_NAME}"
-
