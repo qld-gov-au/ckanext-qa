@@ -62,7 +62,7 @@ jobs:
         run: |
           echo "Branch $REPORT_BRANCH from https://github.com/$REPORT_GIT_REPO/ckanext-report"
           if [ ! -d ckanext-report ]; then
-            git clone --depth=50 --branch=$REPORT_BRANCH https://github.com/$REPORT_GIT_REPO/ckanext-report.git
+            git clone --depth=50 --branch=$REPORT_BRANCH https://github.com/$REPORT_GIT_REPO/ckanext-report
           fi
           cd ckanext-report
             if [ -f pip-requirements.txt ]; then
@@ -81,7 +81,7 @@ jobs:
         run: |
           echo "Branch $ARCHIVER_BRANCH from https://github.com/$ARCHIVER_GIT_REPO/ckanext-archiver"
           if [ ! -d ckanext-archiver ]; then
-            git clone --depth=50 --branch=$ARCHIVER_BRANCH https://github.com/$ARCHIVER_GIT_REPO/ckanext-archiver.git
+            git clone --depth=50 --branch=$ARCHIVER_BRANCH https://github.com/$ARCHIVER_GIT_REPO/ckanext-archiver
           fi
           cd ckanext-archiver
             if [ -f requirements-py2.txt ] && [ $ver -eq 2 ]; then
