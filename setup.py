@@ -17,16 +17,16 @@ setup(
     include_package_data=True,
     zip_safe=False,
     install_requires=[
-      # CKAN extensions should not list dependencies here, but in a separate
-      # ``requirements.txt`` file.
-      #
-      # http://docs.ckan.org/en/latest/extensions/best-practices.html#add-third-party-libraries-to-requirements-txt
+        # CKAN extensions should not list dependencies here, but in a separate
+        # ``requirements.txt`` file.
+        #
+        # http://docs.ckan.org/en/latest/extensions/best-practices.html#add-third-party-libraries-to-requirements-txt
     ],
     tests_require=[
-      # CKAN extensions should not list dependencies here, but in a separate
-      # ``dev-requirements.txt`` file.
-      #
-      # http://docs.ckan.org/en/latest/extensions/best-practices.html#add-third-party-libraries-to-requirements-txt
+        # CKAN extensions should not list dependencies here, but in a separate
+        # ``dev-requirements.txt`` file.
+        #
+        # http://docs.ckan.org/en/latest/extensions/best-practices.html#add-third-party-libraries-to-requirements-txt
     ],
     entry_points='''
     [paste.paster_command]
