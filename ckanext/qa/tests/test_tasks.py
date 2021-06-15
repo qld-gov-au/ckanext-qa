@@ -324,8 +324,8 @@ class TestSaveQaResult(object):
         return qa_result
 
     def test_simple(self):
-        resource_dict = ckan_factories.Resource()
-        resource = model.Resource.get(resource_dict['id'])
+        dataset = ckan_factories.Dataset(owner_org=_test_org().id, resources=[resource])
+        resource = model.Resource.get(dataset['resources'][0]['id'])
         qa_result = self.get_qa_result()
 
         qa = ckanext.qa.tasks.save_qa_result(resource, qa_result)
