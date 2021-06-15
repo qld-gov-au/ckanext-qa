@@ -7,8 +7,8 @@ set -e
 if [ "$VENV_DIR" != "" ]; then
   . ${VENV_DIR}/bin/activate
 fi
-pip install -r "requirements.txt"
 pip install -r "dev-requirements.txt"
+pip install -r "requirements.txt"
 python setup.py develop
 installed_name=$(grep '^\s*name=' setup.py |sed "s|[^']*'\([-a-zA-Z0-9]*\)'.*|\1|")
 
