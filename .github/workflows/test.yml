@@ -32,11 +32,11 @@ jobs:
         ckan-version: [2.8]
         env:
           - { CKAN_GIT_REPO: "ckan/ckan", CKANVERSION: "2.8", ARCHIVER_GIT_REPO: "ckan", ARCHIVER_BRANCH: "master", REPORT_GIT_REPO: "datagovuk", REPORT_BRANCH: "master" }
-          - { CKAN_GIT_REPO: "qld-gov-au/ckan", CKAN_BRANCH: "qgov-master", ARCHIVER_GIT_REPO: "qld-gov-au", ARCHIVER_BRANCH: "2.1.0-qgov.1", REPORT_GIT_REPO: "qld-gov-au", REPORT_BRANCH: "0.1" }
-          - { CKAN_GIT_REPO: "qld-gov-au/ckan", CKAN_BRANCH: "qgov-master", ARCHIVER_GIT_REPO: "qld-gov-au", ARCHIVER_BRANCH: "develop", REPORT_GIT_REPO: "qld-gov-au", REPORT_BRANCH: "develop" }
+          - { CKAN_GIT_REPO: "qld-gov-au/ckan", CKAN_BRANCH: "qgov-master-2.8", ARCHIVER_GIT_REPO: "qld-gov-au", ARCHIVER_BRANCH: "2.1.0-qgov.1", REPORT_GIT_REPO: "qld-gov-au", REPORT_BRANCH: "0.1" }
+          - { CKAN_GIT_REPO: "qld-gov-au/ckan", CKAN_BRANCH: "qgov-master-2.8", ARCHIVER_GIT_REPO: "qld-gov-au", ARCHIVER_BRANCH: "develop", REPORT_GIT_REPO: "qld-gov-au", REPORT_BRANCH: "develop" }
       fail-fast: false
 
-    name: CKAN ${{ matrix.ckan-version }}
+    name: CKAN ${{ matrix.ckan-version }}, Archiver ${{ matrix.env.ARCHIVER_BRANCH }}
     runs-on: ubuntu-18.04
     container:
       image: openknowledge/ckan-dev:${{ matrix.ckan-version }}
@@ -94,9 +94,15 @@ jobs:
 
       - name: Install requirements
         run: |
-          pip install -r dev-requirements.txt
-          pip install -r pip-requirements.txt
-          pip install -r requirements.txt
+          if [ -f dev-requirements.txt ]; then
+            pip install -r dev-requirements.txt
+          fi
+          if [ -f pip-requirements.txt ]; then
+            pip install -r pip-requirements.txt
+          fi
+          if [ -f requirements.txt ]; then
+            pip install -r requirements.txt
+          fi
           pip install -e .
           # Replace default path to CKAN core config file with the one on the container
           sed -i -e 's/use = config:.*/use = config:\/srv\/app\/src\/ckan\/test-core.ini/' test.ini
