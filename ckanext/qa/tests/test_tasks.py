@@ -370,7 +370,7 @@ class TestUpdateResource(object):
         qa_model.init_tables(model.meta.engine)
 
     def test_simple(self):
-        resource = _test_resource
+        resource = _test_resource()
 
         ckanext.qa.tasks.update_resource_(resource.id)
 
