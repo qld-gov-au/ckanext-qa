@@ -135,8 +135,8 @@ class TestResourceScore(BaseCase):
     def _test_resource(self, url='anything', format='TXT', archived=True, cached=True, license_id='uk-ogl'):
         pkg = {'owner_org': _test_org().id, 'license_id': license_id,
                'resources': [
-                   {'url': url, 'format': format, 'description': 'Test'}
-               ]}
+                   {'url': url, 'format': format, 'description': 'Test'}]
+               }
         pkg = ckan_factories.Dataset(**pkg)
         res_id = pkg['resources'][0]['id']
         if archived:
