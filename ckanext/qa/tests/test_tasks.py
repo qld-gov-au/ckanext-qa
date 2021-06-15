@@ -65,6 +65,21 @@ TODAY = datetime.datetime(year=2008, month=10, day=10)
 TODAY_STR = TODAY.isoformat()
 
 
+def _test_org():
+    def load_model_org():
+        orgs = model.Session.query(model.Group)\
+            .filter(model.Group.type == 'organization')\
+            .filter(model.Group.name == 'test-tasks').all()
+        if orgs:
+            return orgs[0]
+
+    org = load_model_org()
+    if not org:
+        ckan_factories.Organization(name='test-tasks')
+        org = load_model_org()
+    return org
+
+
 class TestTask(BaseCase):
 
     @classmethod
@@ -118,7 +133,7 @@ class TestResourceScore(BaseCase):
         }
 
     def _test_resource(self, url='anything', format='TXT', archived=True, cached=True, license_id='uk-ogl'):
-        pkg = {'license_id': license_id,
+        pkg = {'owner_org': _test_org().id, 'license_id': license_id,
                'resources': [
                    {'url': url, 'format': format, 'description': 'Test'}
                ]}
@@ -336,7 +351,7 @@ class TestUpdatePackage(object):
             'title': 'Some data',
             'format': '',
         }
-        dataset = ckan_factories.Dataset(resources=[resource])
+        dataset = ckan_factories.Dataset(owner_org=_test_org().id, resources=[resource])
         resource = model.Resource.get(dataset['resources'][0]['id'])
 
         ckanext.qa.tasks.update_package_(dataset['id'])
@@ -360,7 +375,7 @@ class TestUpdateResource(object):
             'title': 'Some data',
             'format': '',
         }
-        dataset = ckan_factories.Dataset(resources=[resource])
+        dataset = ckan_factories.Dataset(owner_org=_test_org().id, resources=[resource])
         resource = model.Resource.get(dataset['resources'][0]['id'])
 
         ckanext.qa.tasks.update_resource_(dataset['resources'][0]['id'])

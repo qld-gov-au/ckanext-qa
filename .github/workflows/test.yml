@@ -10,7 +10,7 @@ jobs:
     strategy:
       fail-fast: false
 
-    name: QGOV extension build
+    name: QA build
     runs-on: ubuntu-latest
     container: integratedexperts/ci-builder
 
