@@ -72,12 +72,10 @@ def sniff_file_format(filepath):
             if is_iati(buf):
                 format_ = {'format': 'IATI'}
 
-        if format_:
-            return format_
-
-        format_tuple = ckan_helpers.resource_formats().get(mime_type)
-        if format_tuple:
-            format_ = {'format': format_tuple[1]}
+        if not format_:
+            format_tuple = ckan_helpers.resource_formats().get(mime_type)
+            if format_tuple:
+                format_ = {'format': format_tuple[1]}
 
         if not format_:
             if mime_type.startswith('text/'):
@@ -96,44 +94,43 @@ def sniff_file_format(filepath):
             log.warning('Mimetype not recognised by CKAN as a data format: %s',
                         mime_type)
 
-        if format_:
-            log.info('Mimetype translates to filetype: %s',
-                     format_['format'])
-
-            if format_['format'] == 'TXT':
-                # is it JSON?
-                with open(filepath, 'rU') as f:
-                    buf = f.read(10000)
-                if is_json(buf):
-                    format_ = {'format': 'JSON'}
-                # is it CSV?
-                elif is_csv(buf):
-                    format_ = {'format': 'CSV'}
-                elif is_psv(buf):
-                    format_ = {'format': 'PSV'}
-                # XML files without the "<?xml ... ?>" tag end up here
-                elif is_xml_but_without_declaration(buf):
-                    format_ = get_xml_variant_without_xml_declaration(buf)
-                elif is_ttl(buf):
-                    format_ = {'format': 'TTL'}
-
-            elif format_['format'] == 'HTML':
-                # maybe it has RDFa in it
-                with open(filepath) as f:
-                    buf = f.read(100000)
-                if has_rdfa(buf):
-                    format_ = {'format': 'RDFa'}
-
-    if not format_:
+    if not format_ and is_excel(filepath):
         # Excel files sometimes not picked up by magic, so try alternative
-        if is_excel(filepath):
-            format_ = {'format': 'XLS'}
-        # BSD file picks up some files that Magic misses
-        # e.g. some MS Word files
-        if not format_:
-            format_ = run_bsd_file(filepath)
+        format_ = {'format': 'XLS'}
 
+    # BSD file picks up some files that Magic misses
+    # e.g. some MS Word files
     if not format_:
+        format_ = run_bsd_file(filepath)
+
+    if format_:
+        log.info('Mimetype translates to filetype: %s',
+                 format_['format'])
+
+        if format_['format'] == 'TXT':
+            # is it JSON?
+            with open(filepath, 'rU') as f:
+                buf = f.read(10000)
+            if is_json(buf):
+                format_ = {'format': 'JSON'}
+            # is it CSV?
+            elif is_csv(buf):
+                format_ = {'format': 'CSV'}
+            elif is_psv(buf):
+                format_ = {'format': 'PSV'}
+            # XML files without the "<?xml ... ?>" tag end up here
+            elif is_xml_but_without_declaration(buf):
+                format_ = get_xml_variant_without_xml_declaration(buf)
+            elif is_ttl(buf):
+                format_ = {'format': 'TTL'}
+
+        elif format_['format'] == 'HTML':
+            # maybe it has RDFa in it
+            with open(filepath) as f:
+                buf = f.read(100000)
+            if has_rdfa(buf):
+                format_ = {'format': 'RDFa'}
+    else:
         log.warning('Could not detect format of file: %s', filepath)
     return format_
 
@@ -217,7 +214,7 @@ def is_psv(buf):
     return _is_spreadsheet(table_set, 'PSV')
 
 
-def _is_spreadsheet(table_set, format):
+def _is_spreadsheet(table_set, format_):
     def get_cells_per_row(num_cells, num_rows):
         if not num_rows:
             return 0
@@ -237,10 +234,13 @@ def _is_spreadsheet(table_set, format):
                     # over the long term, 2 columns is the minimum
                     if cells_per_row > 1.9:
                         log.info('Is %s because %.1f cells per row (%i cells, %i rows)',
-                                 format,
+                                 format_,
                                  get_cells_per_row(num_cells, num_rows),
                                  num_cells, num_rows)
                         return True
+    except messytables.ReadError:
+        log.info('Not %s - unable to parse as a table', format_)
+        return False
     finally:
         pass
     # if file is short then be more lenient
@@ -248,13 +248,13 @@ def _is_spreadsheet(table_set, format):
         cells_per_row = get_cells_per_row(num_cells, num_rows)
         if cells_per_row > 1.5:
             log.info('Is %s because %.1f cells per row (%i cells, %i rows)',
-                     format,
+                     format_,
                      get_cells_per_row(num_cells, num_rows),
                      num_cells, num_rows)
             return True
     log.info('Not %s - not enough valid cells per row '
              '(%i cells, %i rows, %.1f cells per row)',
-             format, num_cells, num_rows, get_cells_per_row(num_cells, num_rows))
+             format_, num_cells, num_rows, get_cells_per_row(num_cells, num_rows))
     return False
 
 

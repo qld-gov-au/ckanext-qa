@@ -24,10 +24,10 @@ try:
 except ImportError:
     from pylons import config
 import ckan.lib.helpers as ckan_helpers
-from sniff_format import sniff_file_format
 import lib
 from ckanext.archiver.model import Archival, Status
 from ckanext.qa import interfaces as qa_interfaces
+from ckanext.qa.sniff_format import sniff_file_format
 
 import logging
 
