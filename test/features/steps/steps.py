@@ -11,7 +11,6 @@ def go_to_home(context):
 
 @step('I log in')
 def log_in(context):
-
     assert context.persona
     context.execute_steps(u"""
         When I go to homepage
@@ -23,16 +22,16 @@ def log_in(context):
     """)
 
 
-@step('I go to dataset page')
+@step(u'I go to dataset page')
 def go_to_dataset_page(context):
     when_i_visit_url(context, '/dataset')
 
 
-@step('I go to organisation page')
+@step(u'I go to organisation page')
 def go_to_organisation_page(context):
     when_i_visit_url(context, '/organization')
 
 
-@step('I go to register page')
+@step(u'I go to register page')
 def go_to_register_page(context):
     when_i_visit_url(context, '/user/register')

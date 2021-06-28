@@ -9,5 +9,5 @@ set -e
 ahoy cli "mkdir -p test/screenshots"
 
 # Copy from the app container to the build host for storage.
-mkdir -p /tmp/artifacts/behave/screenshots
-docker cp "$(docker-compose ps -q ckan)":/app/test/screenshots /tmp/artifacts/behave
+mkdir -p /tmp/artifacts/behave
+docker cp "$(docker-compose ps -q ckan)":/app/test/screenshots /tmp/artifacts/behave/

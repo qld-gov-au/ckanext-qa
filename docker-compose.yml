@@ -58,7 +58,7 @@ services:
       <<: *default-environment
 
   redis:
-    image: redis:3
+    image: redis:6-alpine
     <<: *default-user
     environment:
       <<: *default-environment
