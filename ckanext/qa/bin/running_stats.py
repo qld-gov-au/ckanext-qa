@@ -68,9 +68,9 @@ class StatsCount(dict):
             report_dict[category] = self.report_value(category)
 
         if order_by_title:
-            items = sorted(report_dict.iteritems())
+            items = sorted(report_dict.items())
         else:
-            items = sorted(report_dict.iteritems(),
+            items = sorted(report_dict.items(),
                            key=lambda x: -x[1][1])
 
         for category, value_tuple in items:
@@ -110,6 +110,6 @@ if __name__ == '__main__':
     package_stats.add('Success', 'good3')
     package_stats.add('Success', 'good4')
     package_stats.add('Failure', 'bad1')
-    print package_stats.report()
+    print (package_stats.report())
 
-    print StatsList().report()
+    print (StatsList().report())

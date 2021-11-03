@@ -71,7 +71,7 @@ def openness_index(include_sub_organizations=False):
         results = counts
 
     table = []
-    for org_name, org_counts in results.iteritems():
+    for org_name, org_counts in results.items():
         total_stars = sum([k*v for k, v in org_counts['score_counts'].items() if k])
         num_pkgs_scored = sum([v for k, v in org_counts['score_counts'].items()
                               if k is not None])

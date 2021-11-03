@@ -115,7 +115,7 @@ def update_package(ckan_ini_filepath, package_id):
 
     try:
         update_package_(package_id)
-    except Exception, e:
+    except Exception as e:
         log.error('Exception occurred during QA update_package: %s: %s',
                   e.__class__.__name__,  unicode(e))
         raise
@@ -154,7 +154,7 @@ def update(ckan_ini_filepath, resource_id):
     load_config(ckan_ini_filepath)
     try:
         update_resource_(resource_id)
-    except Exception, e:
+    except Exception as e:
         log.error('Exception occurred during QA update_resource: %s: %s',
                   e.__class__.__name__,  unicode(e))
         raise
@@ -253,7 +253,7 @@ def resource_score(resource):
                             format_ = get_qa_format(resource.id)
         score_reason = ' '.join(score_reasons)
         format_ = format_ or None
-    except Exception, e:
+    except Exception as e:
         log.error('Unexpected error while calculating openness score %s: %s\nException: %s',
                   e.__class__.__name__,  unicode(e), traceback.format_exc())
         score_reason = _("Unknown error: %s") % str(e)
