@@ -5,7 +5,6 @@ import logging
 
 from ckan.plugins.toolkit import config
 
-from ckan import plugins as p
 import ckanext.qa.tasks as tasks
 
 log = logging.getLogger(__name__)
@@ -87,23 +86,15 @@ def munge_format_to_be_canonical(format_name):
 
 
 def create_qa_update_package_task(package, queue):
-    from pylons import config
-    ckan_ini_filepath = os.path.abspath(config.__file__)
-
-    compat_enqueue('qa.update_package', tasks.update_package, queue,  args=[ckan_ini_filepath, package.id])
-    log.debug('QA of package put into celery queue %s: %s',
+    compat_enqueue('qa.update_package', tasks.update_package,
+                   queue,  args=[package.id])
+    log.debug('QA of package put into queue %s: %s',
               queue, package.name)
 
 
 def create_qa_update_task(resource, queue):
-    from pylons import config
-    if p.toolkit.check_ckan_version(max_version='2.2.99'):
-        package = resource.resource_group.package
-    else:
-        package = resource.package
-    ckan_ini_filepath = os.path.abspath(config.__file__)
+    package = resource.package
+    compat_enqueue('qa.update', tasks.update, queue, args=[resource.id])
 
-    compat_enqueue('qa.update', tasks.update, queue, args=[ckan_ini_filepath, resource.id])
-
-    log.debug('QA of resource put into celery queue %s: %s/%s url=%r',
+    log.debug('QA of resource put into queue %s: %s/%s url=%r',
               queue, package.name, resource.id, resource.url)

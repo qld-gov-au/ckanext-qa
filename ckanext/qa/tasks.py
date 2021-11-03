@@ -15,7 +15,7 @@ from ckan.lib import i18n
 from ckan.plugins import toolkit
 import ckan.lib.helpers as ckan_helpers
 from ckanext.qa.sniff_format import sniff_file_format
-import lib
+import ckanext.qa.lib as lib
 from ckanext.archiver.model import Archival, Status
 
 import logging
@@ -104,20 +104,19 @@ def load_translations(lang):
     registry.register(translator, fakepylons.translator)
 
 
-def update_package(ckan_ini_filepath, package_id):
+def update_package(package_id):
     """
     Given a package, calculates an openness score for each of its resources.
     It is more efficient to call this than 'update' for each resource.
 
     Returns None
     """
-    load_config(ckan_ini_filepath)
 
     try:
         update_package_(package_id)
     except Exception as e:
         log.error('Exception occurred during QA update_package: %s: %s',
-                  e.__class__.__name__,  unicode(e))
+                  e.__class__.__name__,  str(e))
         raise
 
 
@@ -224,7 +223,7 @@ def resource_score(resource):
     score_reason = ''
     format_ = None
 
-    register_translator()
+    #register_translator()
 
     try:
         score_reasons = []  # a list of strings detailing how we scored it
@@ -255,7 +254,7 @@ def resource_score(resource):
         format_ = format_ or None
     except Exception as e:
         log.error('Unexpected error while calculating openness score %s: %s\nException: %s',
-                  e.__class__.__name__,  unicode(e), traceback.format_exc())
+                  e.__class__.__name__,  str(e), traceback.format_exc())
         score_reason = _("Unknown error: %s") % str(e)
         raise
 

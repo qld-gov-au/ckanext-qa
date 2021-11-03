@@ -13,4 +13,10 @@ def get_commands():
         commands.init_db()
         click.secho(u'QA tables are setup', fg=u"green")
 
+    @qa.command()
+    @click.option('-q', '--queue')
+    @click.argument('args', nargs=-1)
+    def update(args, queue):
+        commands.update(args, queue)
+
     return [qa]

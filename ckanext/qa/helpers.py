@@ -3,6 +3,7 @@ from ckan.plugins import toolkit as tk
 
 
 def qa_openness_stars_resource_html(resource):
+    print('-----> resource', resource)
     qa = resource.get('qa')
     if not qa:
         return tk.literal('<!-- No qa info for this resource -->')

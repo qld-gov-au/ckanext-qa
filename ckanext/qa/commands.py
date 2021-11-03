@@ -3,17 +3,92 @@ import sys
 
 from sqlalchemy import or_
 
-import ckan.plugins as p
+import ckan.model as model
 
 REQUESTS_HEADER = {'content-type': 'application/json',
                    'User-Agent': 'ckanext-qa commands'}
 
 
+log = logging.getLogger(__name__)
+
+
 def init_db():
-    import ckan.model as model
     from ckanext.qa.model import init_tables
     init_tables(model.meta.engine)
 
+
+def update(args, queue):
+    from ckanext.qa import lib
+    packages = []
+    resources = []
+    if len(args) > 1:
+        for arg in args[1:]:
+            # try arg as a group id/name
+            group = model.Group.get(arg)
+            if group and group.is_organization:
+                # group.packages() is unreliable for an organization -
+                # member objects are not definitive whereas owner_org, so
+                # get packages using owner_org
+                query = model.Session.query(model.Package)\
+                    .filter(
+                        or_(model.Package.state == 'active',
+                            model.Package.state == 'pending'))\
+                    .filter_by(owner_org=group.id)
+                packages.extend(query.all())
+                if not queue:
+                    queue = 'bulk'
+                continue
+            elif group:
+                packages.extend(group.packages())
+                if not queue:
+                    queue = 'bulk'
+                continue
+            # try arg as a package id/name
+            pkg = model.Package.get(arg)
+            if pkg:
+                packages.append(pkg)
+                if not queue:
+                    queue = 'priority'
+                continue
+            # try arg as a resource id
+            res = model.Resource.get(arg)
+            if res:
+                resources.append(res)
+                if not queue:
+                    queue = 'priority'
+                continue
+            else:
+                log.error('Could not recognize as a group, package \
+                                                or resource: %r', arg)
+                sys.exit(1)
+    else:
+        # all packages
+        pkgs = model.Session.query(model.Package)\
+                    .filter_by(state='active')\
+                    .order_by('name').all()
+        packages.extend(pkgs)
+        if not queue:
+            queue = 'bulk'
+    if packages:
+        log.info('Datasets to QA: %d', len(packages))
+    if resources:
+        log.info('Resources to QA: %d', len(resources))
+    if not (packages or resources):
+        log.error('No datasets or resources to process')
+        sys.exit(1)
+
+    log.info('Queue: %s', queue)
+    for package in packages:
+        lib.create_qa_update_package_task(package, queue)
+        log.info('Queuing dataset %s (%s resources)',
+                        package.name, len(package.resources))
+
+    for resource in resources:
+        package = resource.resource_group.package
+        log.info('Queuing resource %s/%s', package.name, resource.id)
+        lib.create_qa_update_task(resource, queue)
+
+    log.info('Completed queueing')
 
 
 # class QACommand(p.toolkit.CkanCommand):
@@ -96,80 +171,80 @@ def init_db():
 #         else:
 #             self.log.error('Command "%s" not recognized' % (cmd,))
 
-#     def update(self):
-#         from ckan import model
-#         from ckanext.qa import lib
-#         packages = []
-#         resources = []
-#         if len(self.args) > 1:
-#             for arg in self.args[1:]:
-#                 # try arg as a group id/name
-#                 group = model.Group.get(arg)
-#                 if group and group.is_organization:
-#                     # group.packages() is unreliable for an organization -
-#                     # member objects are not definitive whereas owner_org, so
-#                     # get packages using owner_org
-#                     query = model.Session.query(model.Package)\
-#                         .filter(
-#                             or_(model.Package.state == 'active',
-#                                 model.Package.state == 'pending'))\
-#                         .filter_by(owner_org=group.id)
-#                     packages.extend(query.all())
-#                     if not self.options.queue:
-#                         self.options.queue = 'bulk'
-#                     continue
-#                 elif group:
-#                     packages.extend(group.packages())
-#                     if not self.options.queue:
-#                         self.options.queue = 'bulk'
-#                     continue
-#                 # try arg as a package id/name
-#                 pkg = model.Package.get(arg)
-#                 if pkg:
-#                     packages.append(pkg)
-#                     if not self.options.queue:
-#                         self.options.queue = 'priority'
-#                     continue
-#                 # try arg as a resource id
-#                 res = model.Resource.get(arg)
-#                 if res:
-#                     resources.append(res)
-#                     if not self.options.queue:
-#                         self.options.queue = 'priority'
-#                     continue
-#                 else:
-#                     self.log.error('Could not recognize as a group, package '
-#                                    'or resource: %r', arg)
-#                     sys.exit(1)
-#         else:
-#             # all packages
-#             pkgs = model.Session.query(model.Package)\
-#                         .filter_by(state='active')\
-#                         .order_by('name').all()
-#             packages.extend(pkgs)
-#             if not self.options.queue:
-#                 self.options.queue = 'bulk'
+    # def update(self):
+    #     from ckan import model
+    #     from ckanext.qa import lib
+    #     packages = []
+    #     resources = []
+    #     if len(self.args) > 1:
+    #         for arg in self.args[1:]:
+    #             # try arg as a group id/name
+    #             group = model.Group.get(arg)
+    #             if group and group.is_organization:
+    #                 # group.packages() is unreliable for an organization -
+    #                 # member objects are not definitive whereas owner_org, so
+    #                 # get packages using owner_org
+    #                 query = model.Session.query(model.Package)\
+    #                     .filter(
+    #                         or_(model.Package.state == 'active',
+    #                             model.Package.state == 'pending'))\
+    #                     .filter_by(owner_org=group.id)
+    #                 packages.extend(query.all())
+    #                 if not self.options.queue:
+    #                     self.options.queue = 'bulk'
+    #                 continue
+    #             elif group:
+    #                 packages.extend(group.packages())
+    #                 if not self.options.queue:
+    #                     self.options.queue = 'bulk'
+    #                 continue
+    #             # try arg as a package id/name
+    #             pkg = model.Package.get(arg)
+    #             if pkg:
+    #                 packages.append(pkg)
+    #                 if not self.options.queue:
+    #                     self.options.queue = 'priority'
+    #                 continue
+    #             # try arg as a resource id
+    #             res = model.Resource.get(arg)
+    #             if res:
+    #                 resources.append(res)
+    #                 if not self.options.queue:
+    #                     self.options.queue = 'priority'
+    #                 continue
+    #             else:
+    #                 self.log.error('Could not recognize as a group, package '
+    #                                'or resource: %r', arg)
+    #                 sys.exit(1)
+    #     else:
+    #         # all packages
+    #         pkgs = model.Session.query(model.Package)\
+    #                     .filter_by(state='active')\
+    #                     .order_by('name').all()
+    #         packages.extend(pkgs)
+    #         if not self.options.queue:
+    #             self.options.queue = 'bulk'
 
-#         if packages:
-#             self.log.info('Datasets to QA: %d', len(packages))
-#         if resources:
-#             self.log.info('Resources to QA: %d', len(resources))
-#         if not (packages or resources):
-#             self.log.error('No datasets or resources to process')
-#             sys.exit(1)
+    #     if packages:
+    #         self.log.info('Datasets to QA: %d', len(packages))
+    #     if resources:
+    #         self.log.info('Resources to QA: %d', len(resources))
+    #     if not (packages or resources):
+    #         self.log.error('No datasets or resources to process')
+    #         sys.exit(1)
 
-#         self.log.info('Queue: %s', self.options.queue)
-#         for package in packages:
-#             lib.create_qa_update_package_task(package, self.options.queue)
-#             self.log.info('Queuing dataset %s (%s resources)',
-#                           package.name, len(package.resources))
+    #     self.log.info('Queue: %s', self.options.queue)
+    #     for package in packages:
+    #         lib.create_qa_update_package_task(package, self.options.queue)
+    #         self.log.info('Queuing dataset %s (%s resources)',
+    #                       package.name, len(package.resources))
 
-#         for resource in resources:
-#             package = resource.resource_group.package
-#             self.log.info('Queuing resource %s/%s', package.name, resource.id)
-#             lib.create_qa_update_task(resource, self.options.queue)
+    #     for resource in resources:
+    #         package = resource.resource_group.package
+    #         self.log.info('Queuing resource %s/%s', package.name, resource.id)
+    #         lib.create_qa_update_task(resource, self.options.queue)
 
-#         self.log.info('Completed queueing')
+    #     self.log.info('Completed queueing')
 
 #     def sniff(self):
 #         from ckanext.qa.sniff_format import sniff_file_format
