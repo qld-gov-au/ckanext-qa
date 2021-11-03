@@ -4,10 +4,11 @@ import ckan.model as model
 import ckan.plugins as p
 
 from ckanext.archiver.interfaces import IPipe
-from logic import action, auth
-from model import QA, aggregate_qa_for_a_dataset
-import helpers
-import lib
+from ckanext.qa.logic import action, auth
+from ckanext.qa.model import QA, aggregate_qa_for_a_dataset
+import ckanext.qa.helpers as helpers
+import ckanext.qa.lib as lib
+import ckanext.qa.cli as cli
 from ckanext.report.interfaces import IReport
 
 
@@ -23,6 +24,7 @@ class QAPlugin(p.SingletonPlugin, p.toolkit.DefaultDatasetForm):
     p.implements(p.IAuthFunctions)
     p.implements(p.ITemplateHelpers)
     p.implements(p.IPackageController, inherit=True)
+    p.implements(p.IClick)
 
     # IConfigurer
 
@@ -112,3 +114,6 @@ class QAPlugin(p.SingletonPlugin, p.toolkit.DefaultDatasetForm):
                 del qa_dict['package_id']
                 del qa_dict['resource_id']
                 res['qa'] = qa_dict
+
+    def get_commands(self):
+        return cli.get_commands()

@@ -6,7 +6,7 @@ import datetime
 import json
 import os
 import traceback
-import urlparse
+from urllib.parse import urlparse
 import routes
 
 from ckan.common import _
@@ -14,7 +14,7 @@ from ckan.common import _
 from ckan.lib import i18n
 from ckan.plugins import toolkit
 import ckan.lib.helpers as ckan_helpers
-from sniff_format import sniff_file_format
+from ckanext.qa.sniff_format import sniff_file_format
 import lib
 from ckanext.archiver.model import Archival, Status
 
@@ -156,7 +156,7 @@ def update(ckan_ini_filepath, resource_id):
         update_resource_(resource_id)
     except Exception as e:
         log.error('Exception occurred during QA update_resource: %s: %s',
-                  e.__class__.__name__,  unicode(e))
+                  e.__class__.__name__,  str(e))
         raise
 
 
@@ -296,7 +296,7 @@ def broken_link_error_message(archival):
         else:
             return ''
     messages = [_('File could not be downloaded.'),
-                _('Reason') + ':', unicode(archival.status) + '.',
+                _('Reason') + ':', str(archival.status) + '.',
                 _('Error details: %s.') % archival.reason,
                 _('Attempted on %s.') % format_date(archival.updated)]
     last_success = format_date(archival.last_success)

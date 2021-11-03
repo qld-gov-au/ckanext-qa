@@ -3,10 +3,10 @@ import json
 import re
 import logging
 
-from pylons import config
+from ckan.plugins.toolkit import config
 
 from ckan import plugins as p
-import tasks
+import ckanext.qa.tasks as tasks
 
 log = logging.getLogger(__name__)
 

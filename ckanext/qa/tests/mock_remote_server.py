@@ -116,7 +116,7 @@ class MockEchoTestServer(MockHTTPServer):
         else:
             content = request.str_params.get('content', '')
 
-        if isinstance(content, unicode):
+        if isinstance(content, str):
             raise TypeError("Expected raw byte string for content")
 
         headers = [

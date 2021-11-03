@@ -3,7 +3,7 @@ import zipfile
 import os
 from collections import defaultdict
 import subprocess
-import StringIO
+from io import StringIO
 
 import xlrd
 import magic
@@ -33,7 +33,7 @@ def sniff_file_format(filepath):
     '''
     format_ = None
     log.info('Sniffing file format of: %s', filepath)
-    filepath_utf8 = filepath.encode('utf8') if isinstance(filepath, unicode) \
+    filepath_utf8 = filepath.encode('utf8') if isinstance(filepath, str) \
         else filepath
     mime_type = magic.from_file(filepath_utf8, mime=True)
     log.info('Magic detects file as: %s', mime_type)
@@ -201,14 +201,14 @@ def is_json(buf):
 
 def is_csv(buf):
     '''If the buffer is a CSV file then return True.'''
-    buf_rows = StringIO.StringIO(buf)
+    buf_rows = StringIO(buf)
     table_set = messytables.CSVTableSet(buf_rows)
     return _is_spreadsheet(table_set, 'CSV')
 
 
 def is_psv(buf):
     '''If the buffer is a PSV file then return True.'''
-    buf_rows = StringIO.StringIO(buf)
+    buf_rows = StringIO(buf)
     table_set = messytables.CSVTableSet(buf_rows, delimiter='|')
     return _is_spreadsheet(table_set, 'PSV')
 
@@ -318,7 +318,7 @@ def get_xml_variant_without_xml_declaration(buf):
     p.StartElementHandler = start_element
     try:
         p.Parse(buf)
-    except GotFirstTag, e:
+    except GotFirstTag as e:
         top_level_tag_name = str(e).lower()
     except xml.sax.SAXException as e:
         log.info('Sax parse error: %s %s', e, buf)

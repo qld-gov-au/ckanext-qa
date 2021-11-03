@@ -15,7 +15,7 @@ Base = declarative_base()
 
 
 def make_uuid():
-    return unicode(uuid.uuid4())
+    return str(uuid.uuid4())
 
 
 class QA(Base):
@@ -40,7 +40,7 @@ class QA(Base):
 
     def __repr__(self):
         summary = 'score=%s format=%s' % (self.openness_score, self.format)
-        details = unicode(self.openness_score_reason).encode('unicode_escape')
+        details = str(self.openness_score_reason).encode('unicode_escape')
         package = model.Package.get(self.package_id)
         package_name = package.name if package else '?%s?' % self.package_id
         return '<QA %s /dataset/%s/resource/%s %s>' % \
