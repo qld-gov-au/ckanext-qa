@@ -9,7 +9,7 @@ import xlrd
 import magic
 import messytables
 
-import lib
+import ckanext.qa.lib as lib
 from ckan.lib import helpers as ckan_helpers
 
 import logging
