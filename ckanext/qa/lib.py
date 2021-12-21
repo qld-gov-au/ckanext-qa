@@ -21,7 +21,8 @@ def compat_enqueue(name, fn, queue, args=None):
     try:
         # Try to use RQ
         from ckan.plugins.toolkit import enqueue_job
-        enqueue_job(fn, args=args, queue=queue)
+        nice_name = name + " " + args[1] if (len(args) >= 2) else name
+        enqueue_job(fn, args=args, queue=queue, title=nice_name)
     except ImportError:
         # Fallback to Celery
         import uuid
