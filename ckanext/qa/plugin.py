@@ -16,9 +16,9 @@ log = logging.getLogger(__name__)
 
 
 if p.toolkit.check_ckan_version("2.9"):
-    from .plugin.flask_plugin import MixinPlugin
+    from .plugin_mixins.flask_plugin import MixinPlugin
 else:
-    from .plugin.pylons_plugin import MixinPlugin
+    from .plugin_mixins.pylons_plugin import MixinPlugin
 
 
 class QAPlugin(MixinPlugin, p.SingletonPlugin, p.toolkit.DefaultDatasetForm, DefaultTranslation):
