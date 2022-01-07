@@ -6,8 +6,8 @@ This controller exposes only one action: check_link
 import json
 import mimetypes
 import posixpath
-import urllib
-import urlparse
+import six.moves.urllib.parse as urllib
+import six.moves.urllib.parse as urlparse
 
 from ckan.lib.base import request, BaseController
 from ckan.lib.helpers import parse_rfc_2822_date

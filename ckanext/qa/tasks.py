@@ -80,20 +80,20 @@ def register_translator():
 
 
 def load_config(ckan_ini_filepath):
-    import paste.deploy
-    config_abs_path = os.path.abspath(ckan_ini_filepath)
-    conf = paste.deploy.appconfig('config:' + config_abs_path)
-    import ckan
-    ckan.config.environment.load_environment(conf.global_conf,
-                                             conf.local_conf)
+    if ckan_ini_filepath:
+        toolkit.load_config(ckan_ini_filepath)
 
     # give routes enough information to run url_for
-    parsed = urlparse.urlparse(conf.get('ckan.site_url', 'http://0.0.0.0'))
+    parsed = urlparse.urlparse(config.get('ckan.site_url', 'http://0.0.0.0'))
     request_config = routes.request_config()
     request_config.host = parsed.netloc + parsed.path
     request_config.protocol = parsed.scheme
 
-    load_translations(conf.get('ckan.locale_default', 'en'))
+    try:
+        load_translations(config.get('ckan.locale_default', 'en'))
+    except ImportError:
+        # if we can't import Pylons, we don't need to
+        pass
 
 
 def load_translations(lang):
