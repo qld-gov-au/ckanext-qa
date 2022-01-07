@@ -34,7 +34,7 @@ class QAPlugin(MixinPlugin, p.SingletonPlugin, p.toolkit.DefaultDatasetForm, Def
     # IConfigurer
 
     def update_config(self, config):
-        p.toolkit.add_template_directory(config, 'templates')
+        p.toolkit.add_template_directory(config, '../templates')
 
     # IPipe
 
