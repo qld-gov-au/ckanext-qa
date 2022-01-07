@@ -3,10 +3,9 @@ import json
 import re
 import logging
 
-from pylons import config
+from ckan.plugins.toolkit import check_ckan_version, config
 
-from ckan import plugins as p
-import tasks
+from . import tasks
 
 log = logging.getLogger(__name__)
 
@@ -88,7 +87,6 @@ def munge_format_to_be_canonical(format_name):
 
 
 def create_qa_update_package_task(package, queue):
-    from pylons import config
     ckan_ini_filepath = os.path.abspath(config.__file__)
 
     compat_enqueue('qa.update_package', tasks.update_package, queue, args=[ckan_ini_filepath, package.id])
@@ -97,8 +95,7 @@ def create_qa_update_package_task(package, queue):
 
 
 def create_qa_update_task(resource, queue):
-    from pylons import config
-    if p.toolkit.check_ckan_version(max_version='2.2.99'):
+    if check_ckan_version(max_version='2.2.99'):
         package = resource.resource_group.package
     else:
         package = resource.package

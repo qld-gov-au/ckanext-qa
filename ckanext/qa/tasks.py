@@ -11,7 +11,7 @@ import tempfile
 import time
 import traceback
 
-import urlparse
+import six.moves.urllib.parse as urlparse
 import routes
 
 import requests
