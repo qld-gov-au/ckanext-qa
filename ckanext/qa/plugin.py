@@ -16,9 +16,9 @@ log = logging.getLogger(__name__)
 
 
 if p.toolkit.check_ckan_version("2.9"):
-    from flask_plugin import MixinPlugin
+    from .plugin.flask_plugin import MixinPlugin
 else:
-    from pylons_plugin import MixinPlugin
+    from .plugin.pylons_plugin import MixinPlugin
 
 
 class QAPlugin(MixinPlugin, p.SingletonPlugin, p.toolkit.DefaultDatasetForm, DefaultTranslation):
@@ -34,7 +34,7 @@ class QAPlugin(MixinPlugin, p.SingletonPlugin, p.toolkit.DefaultDatasetForm, Def
     # IConfigurer
 
     def update_config(self, config):
-        p.toolkit.add_template_directory(config, '../templates')
+        p.toolkit.add_template_directory(config, 'templates')
 
     # IPipe
 
