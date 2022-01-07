@@ -13,7 +13,7 @@ from ckan.plugins.toolkit import request
 from ckan.lib import helpers as ckan_helpers
 
 from ckanext.archiver.tasks import link_checker, LinkCheckerError
-from . import request_helpers
+from ckanext.qa import request_helpers
 
 
 def check_link():
