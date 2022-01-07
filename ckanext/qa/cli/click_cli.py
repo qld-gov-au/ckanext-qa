@@ -12,7 +12,7 @@ def get_commands():
         pass
 
     @qa.command()
-    def init_db():
+    def init():
         """Creates the database tables that QA expects for storing results"""
         commands.init_db()
         click.secho(u'QA tables are setup', fg=u"green")
@@ -35,7 +35,7 @@ def get_commands():
             commands.view()
 
     @qa.command()
-    def migrate():
+    def migrate1():
         """ Migrates the way results are stored in task_status,
             with commit 6f63ab9e 20th March 2013
             (from key='openness_score'/'openness_score_failure_count'
