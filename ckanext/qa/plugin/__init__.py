@@ -21,7 +21,7 @@ else:
     from pylons_plugin import MixinPlugin
 
 
-class QAPlugin(p.SingletonPlugin, p.toolkit.DefaultDatasetForm, DefaultTranslation, MixinPlugin):
+class QAPlugin(MixinPlugin, p.SingletonPlugin, p.toolkit.DefaultDatasetForm, DefaultTranslation):
     p.implements(p.IConfigurer, inherit=True)
     p.implements(IPipe, inherit=True)
     p.implements(IReport)
