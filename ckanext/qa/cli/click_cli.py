@@ -1,7 +1,7 @@
 # encoding: utf-8
 
 import click
-from . import commands
+import commands
 
 
 def get_commands():
