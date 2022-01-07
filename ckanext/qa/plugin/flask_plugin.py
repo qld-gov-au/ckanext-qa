@@ -2,7 +2,7 @@
 
 import ckan.plugins as p
 
-from ckanext.qa import blueprints
+from ckanext.qa.controllers import blueprints
 from ckanext.qa.cli import click_cli
 
 
