@@ -11,7 +11,7 @@ import xlrd
 import magic
 import messytables
 
-from .lib import resource_format_scores
+from lib import resource_format_scores
 from ckan.lib import helpers as ckan_helpers
 
 import logging

@@ -5,7 +5,7 @@ import logging
 
 from ckan.plugins.toolkit import check_ckan_version, config
 
-from . import tasks
+import tasks
 
 log = logging.getLogger(__name__)
 
