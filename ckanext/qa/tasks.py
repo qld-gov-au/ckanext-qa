@@ -17,6 +17,7 @@ import routes
 import requests
 
 from ckan.common import _
+from ckan.config.environment import load_environment
 from ckan.lib import i18n
 from ckan.plugins import toolkit
 try:
@@ -79,9 +80,12 @@ def register_translator():
     registry.register(translator, translator_obj)
 
 
-def load_config(ckan_ini_filepath):
-    if ckan_ini_filepath:
-        toolkit.load_config(ckan_ini_filepath)
+def load_config(ckan_ini):
+    if ckan_ini:
+        if isinstance(ckan_ini, six.string_types):
+            toolkit.load_config(ckan_ini)
+        else:
+            load_environment(ckan_ini)
 
     # give routes enough information to run url_for
     parsed = urlparse.urlparse(config.get('ckan.site_url', 'http://0.0.0.0'))

@@ -86,10 +86,16 @@ def munge_format_to_be_canonical(format_name):
     return re.sub('[^a-z/+]', '', format_name)
 
 
-def create_qa_update_package_task(package, queue):
-    ckan_ini_filepath = os.path.abspath(config.__file__)
+def _get_ckan_ini(config):
+    if hasattr(config, '__file__'):
+        return os.path.abspath(config.__file__)
+    else:
+        return config
 
-    compat_enqueue('qa.update_package', tasks.update_package, queue, args=[ckan_ini_filepath, package.id])
+
+def create_qa_update_package_task(package, queue):
+    ckan_ini = _get_ckan_ini(config)
+    compat_enqueue('qa.update_package', tasks.update_package, queue, args=[ckan_ini, package.id])
     log.debug('QA of package put into celery queue %s: %s',
               queue, package.name)
 
@@ -99,9 +105,9 @@ def create_qa_update_task(resource, queue):
         package = resource.resource_group.package
     else:
         package = resource.package
-    ckan_ini_filepath = os.path.abspath(config.__file__)
+    ckan_ini = _get_ckan_ini(config)
 
-    compat_enqueue('qa.update', tasks.update, queue, args=[ckan_ini_filepath, resource.id])
+    compat_enqueue('qa.update', tasks.update, queue, args=[ckan_ini, resource.id])
 
     log.debug('QA of resource put into celery queue %s: %s/%s url=%r',
               queue, package.name, resource.id, resource.url)
