@@ -6,8 +6,13 @@ Common functions for the 'check_link' controller via Pylons or Flask routing.
 import json
 import mimetypes
 import posixpath
-import six.moves.urllib.parse as urllib
+import six
 import six.moves.urllib.parse as urlparse
+# this move isn't covered in the 'six' module
+if six.PY2:
+    from urllib import splittype
+else:
+    from urllib.parse import splittype
 
 from ckan.plugins.toolkit import request
 from ckan.lib import helpers as ckan_helpers
@@ -77,7 +82,7 @@ def _check_link(url):
     """
 
     # If a user enters "www.example.com" then we assume they meant "http://www.example.com"
-    scheme, path = urllib.splittype(url)
+    scheme, path = splittype(url)
     if not scheme:
         url = 'http://' + path
 
