@@ -15,6 +15,7 @@ jobs:
     runs-on: ubuntu-latest
     container: integratedexperts/ci-builder
     env:
+      CKAN_REPO: qld-gov-au/ckan
       CKAN_VERSION: ${{ matrix.ckan-version }}
 
     steps:
