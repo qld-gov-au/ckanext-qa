@@ -11,8 +11,7 @@ import tempfile
 import time
 import traceback
 
-import urlparse
-import routes
+import six.moves.urllib.parse as urlparse
 
 import requests
 
@@ -79,23 +78,6 @@ def register_translator():
     registry.register(translator, translator_obj)
 
 
-def load_config(ckan_ini_filepath):
-    import paste.deploy
-    config_abs_path = os.path.abspath(ckan_ini_filepath)
-    conf = paste.deploy.appconfig('config:' + config_abs_path)
-    import ckan
-    ckan.config.environment.load_environment(conf.global_conf,
-                                             conf.local_conf)
-
-    # give routes enough information to run url_for
-    parsed = urlparse.urlparse(conf.get('ckan.site_url', 'http://0.0.0.0'))
-    request_config = routes.request_config()
-    request_config.host = parsed.netloc + parsed.path
-    request_config.protocol = parsed.scheme
-
-    load_translations(conf.get('ckan.locale_default', 'en'))
-
-
 def load_translations(lang):
     # Register a translator in this thread so that
     # the _() functions in logic layer can work
@@ -121,15 +103,13 @@ def load_translations(lang):
     registry.register(translator, fakepylons.translator)
 
 
-def update_package(ckan_ini_filepath, package_id):
+def update_package(package_id):
     """
     Given a package, calculates an openness score for each of its resources.
     It is more efficient to call this than 'update' for each resource.
 
     Returns None
     """
-    load_config(ckan_ini_filepath)
-
     try:
         update_package_(package_id)
     except Exception as e:
@@ -159,7 +139,7 @@ def update_package_(package_id):
     _update_search_index(package.id)
 
 
-def update(ckan_ini_filepath, resource_id):
+def update(resource_id):
     """
     Given a resource, calculates an openness score.
 
@@ -168,7 +148,6 @@ def update(ckan_ini_filepath, resource_id):
         'openness_score': score (int)
         'openness_score_reason': the reason for the score (string)
     """
-    load_config(ckan_ini_filepath)
     try:
         update_resource_(resource_id)
     except Exception as e:
@@ -457,9 +436,9 @@ def _download_url(url):
                       DOWNLOAD_TIMEOUT))
     except requests.exceptions.RequestException as e:
         try:
-            err_message = str(e.reason)
+            err_message = six.text_type(e.reason)
         except AttributeError:
-            err_message = str(e)
+            err_message = six.text_type(e)
         log.warning('URL error: {}'.format(err_message))
         tmp_file.close()
         os.remove(tmp_file.name)

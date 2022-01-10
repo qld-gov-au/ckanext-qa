@@ -1,5 +1,9 @@
+# encoding: utf-8
+
 from collections import Counter
 import copy
+import logging
+import six
 try:
     from collections import OrderedDict  # from python 2.7
 except ImportError:
@@ -10,7 +14,6 @@ import ckan.model as model
 import ckan.plugins as p
 from ckanext.report import lib
 
-import logging
 
 log = logging.getLogger(__name__)
 
@@ -72,7 +75,7 @@ def openness_index(include_sub_organizations=False):
         results = counts
 
     table = []
-    for org_name, org_counts in results.iteritems():
+    for org_name, org_counts in six.iteritems(results):
         total_stars = sum([k * v for k, v in org_counts['score_counts'].items() if k])
         num_pkgs_scored = sum([v for k, v in org_counts['score_counts'].items()
                               if k is not None])
@@ -181,7 +184,7 @@ def jsonify_counter(counter):
     # When counters are stored as JSON, integers become strings. Do the conversion
     # here to ensure that when you run the report the first time, you get the same
     # response as subsequent times that go through the cache/JSON.
-    return dict((str(k) if k is not None else k, v) for k, v in counter.items())
+    return dict((six.text_type(k) if k is not None else k, v) for k, v in counter.items())
 
 
 def add_progress_bar(iterable, caption=None):

@@ -1,11 +1,13 @@
-import os
+# encoding: utf-8
+
 import json
-import re
 import logging
+import os
+import re
+import six
 
-from pylons import config
+from ckan.plugins.toolkit import check_ckan_version, config
 
-from ckan import plugins as p
 import tasks
 
 log = logging.getLogger(__name__)
@@ -27,7 +29,7 @@ def compat_enqueue(name, fn, queue, args=None):
         # Fallback to Celery
         import uuid
         from ckan.lib.celery_app import celery
-        celery.send_task(name, args=args + [queue], task_id=str(uuid.uuid4()))
+        celery.send_task(name, args=args + [queue], task_id=six.text_type(uuid.uuid4()))
 
 
 def resource_format_scores():
@@ -88,23 +90,18 @@ def munge_format_to_be_canonical(format_name):
 
 
 def create_qa_update_package_task(package, queue):
-    from pylons import config
-    ckan_ini_filepath = os.path.abspath(config.__file__)
-
-    compat_enqueue('qa.update_package', tasks.update_package, queue, args=[ckan_ini_filepath, package.id])
+    compat_enqueue('qa.update_package', tasks.update_package, queue, args=[package.id])
     log.debug('QA of package put into celery queue %s: %s',
               queue, package.name)
 
 
 def create_qa_update_task(resource, queue):
-    from pylons import config
-    if p.toolkit.check_ckan_version(max_version='2.2.99'):
+    if check_ckan_version(max_version='2.2.99'):
         package = resource.resource_group.package
     else:
         package = resource.package
-    ckan_ini_filepath = os.path.abspath(config.__file__)
 
-    compat_enqueue('qa.update', tasks.update, queue, args=[ckan_ini_filepath, resource.id])
+    compat_enqueue('qa.update', tasks.update, queue, args=[resource.id])
 
     log.debug('QA of resource put into celery queue %s: %s/%s url=%r',
               queue, package.name, resource.id, resource.url)

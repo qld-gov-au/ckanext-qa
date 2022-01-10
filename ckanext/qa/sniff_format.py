@@ -5,7 +5,7 @@ import os
 from collections import defaultdict
 import six
 import subprocess
-import StringIO
+from six import StringIO
 
 import xlrd
 import magic
@@ -189,7 +189,7 @@ def is_json(buf):
             log.info('Not JSON - %i matches', number_of_matches)
             return False
         match_length = matcher.match(part_of_buf).end()
-        # print "MATCHED %r %r %s" % (matcher.match(part_of_buf).string[:match_length], matcher.pattern, state_stack)
+        # print("MATCHED %r %r %s" % (matcher.match(part_of_buf).string[:match_length], matcher.pattern, state_stack))
         pos += match_length
         number_of_matches += 1
         if number_of_matches > 5:
@@ -202,14 +202,14 @@ def is_json(buf):
 
 def is_csv(buf):
     '''If the buffer is a CSV file then return True.'''
-    buf_rows = StringIO.StringIO(buf)
+    buf_rows = StringIO(buf)
     table_set = messytables.CSVTableSet(buf_rows)
     return _is_spreadsheet(table_set, 'CSV')
 
 
 def is_psv(buf):
     '''If the buffer is a PSV file then return True.'''
-    buf_rows = StringIO.StringIO(buf)
+    buf_rows = StringIO(buf)
     table_set = messytables.CSVTableSet(buf_rows, delimiter='|')
     return _is_spreadsheet(table_set, 'PSV')
 

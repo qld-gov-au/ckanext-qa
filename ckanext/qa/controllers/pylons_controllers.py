@@ -6,8 +6,13 @@ This controller exposes only one action: check_link
 import json
 import mimetypes
 import posixpath
-import urllib
-import urlparse
+import six
+import six.moves.urllib.parse as urlparse
+# this move isn't covered in the 'six' module
+if six.PY2:
+    from urllib import splittype
+else:
+    from urllib.parse import splittype
 
 from ckan.lib.base import request, BaseController
 from ckan.lib.helpers import parse_rfc_2822_date
@@ -78,7 +83,7 @@ class LinkCheckerController(BaseController):
         """
 
         # If a user enters "www.example.com" then we assume they meant "http://www.example.com"
-        scheme, path = urllib.splittype(url)
+        scheme, path = splittype(url)
         if not scheme:
             url = 'http://' + path
 
@@ -103,7 +108,7 @@ class LinkCheckerController(BaseController):
             result['size'] = headers.get('content-length', '')
             result['last_modified'] = self._parse_and_format_date(headers.get('last-modified', ''))
         except LinkCheckerError as e:
-            result['url_errors'].append(str(e))
+            result['url_errors'].append(six.text_type(e))
         return result
 
     def _extract_file_format(self, url, headers):

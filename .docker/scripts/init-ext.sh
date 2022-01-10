@@ -8,6 +8,9 @@ if [ "$VENV_DIR" != "" ]; then
   . ${VENV_DIR}/bin/activate
 fi
 pip install -r "dev-requirements.txt"
+if [ "$CKAN_VERSION" = "2.8.8" ]; then
+    pip install -r "dev-requirements-2.8.txt"
+fi
 pip install -r "requirements.txt"
 pip install -r "${VENV_DIR}/src/ckanext-archiver/requirements.txt"
 python setup.py develop

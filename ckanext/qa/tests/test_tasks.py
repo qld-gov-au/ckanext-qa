@@ -12,11 +12,9 @@ import ckan.lib.helpers as ckan_helpers
 try:
     from ckan.tests.helpers import reset_db
     from ckan.tests import factories as ckan_factories
-    from ckan.tests.legacy import BaseCase
 except ImportError:
     from ckan.new_tests.helpers import reset_db
     from ckan.new_tests import factories as ckan_factories
-    from ckan.tests import BaseCase
 
 import ckanext.qa.tasks
 from ckanext.qa.tasks import resource_score, extension_variants
@@ -96,7 +94,7 @@ def _test_resource(url='anything', format='TXT', archived=True, cached=True, lic
     return model.Resource.get(res_id)
 
 
-class TestTask(BaseCase):
+class TestTask():
 
     @classmethod
     def setup_class(cls):
@@ -131,7 +129,7 @@ class TestTask(BaseCase):
         # TODO run celery and check it actually ran...
 
 
-class TestResourceScore(BaseCase):
+class TestResourceScore():
 
     @classmethod
     def setup_class(cls):
