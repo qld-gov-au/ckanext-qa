@@ -436,9 +436,9 @@ def _download_url(url):
                       DOWNLOAD_TIMEOUT))
     except requests.exceptions.RequestException as e:
         try:
-            err_message = str(e.reason)
+            err_message = six.text_type(e.reason)
         except AttributeError:
-            err_message = str(e)
+            err_message = six.text_type(e)
         log.warning('URL error: {}'.format(err_message))
         tmp_file.close()
         os.remove(tmp_file.name)

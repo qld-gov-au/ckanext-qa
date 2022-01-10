@@ -1,7 +1,10 @@
-import os
+# encoding: utf-8
+
 import json
-import re
 import logging
+import os
+import re
+import six
 
 from ckan.plugins.toolkit import check_ckan_version, config
 
@@ -26,7 +29,7 @@ def compat_enqueue(name, fn, queue, args=None):
         # Fallback to Celery
         import uuid
         from ckan.lib.celery_app import celery
-        celery.send_task(name, args=args + [queue], task_id=str(uuid.uuid4()))
+        celery.send_task(name, args=args + [queue], task_id=six.text_type(uuid.uuid4()))
 
 
 def resource_format_scores():

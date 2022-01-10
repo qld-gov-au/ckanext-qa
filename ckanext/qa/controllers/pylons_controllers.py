@@ -108,7 +108,7 @@ class LinkCheckerController(BaseController):
             result['size'] = headers.get('content-length', '')
             result['last_modified'] = self._parse_and_format_date(headers.get('last-modified', ''))
         except LinkCheckerError as e:
-            result['url_errors'].append(str(e))
+            result['url_errors'].append(six.text_type(e))
         return result
 
     def _extract_file_format(self, url, headers):

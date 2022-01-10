@@ -107,7 +107,7 @@ def _check_link(url):
         result['size'] = headers.get('content-length', '')
         result['last_modified'] = _parse_and_format_date(headers.get('last-modified', ''))
     except LinkCheckerError as e:
-        result['url_errors'].append(str(e))
+        result['url_errors'].append(six.text_type(e))
     return result
 
 

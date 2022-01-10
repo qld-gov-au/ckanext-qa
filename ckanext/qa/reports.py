@@ -184,7 +184,7 @@ def jsonify_counter(counter):
     # When counters are stored as JSON, integers become strings. Do the conversion
     # here to ensure that when you run the report the first time, you get the same
     # response as subsequent times that go through the cache/JSON.
-    return dict((str(k) if k is not None else k, v) for k, v in counter.items())
+    return dict((six.text_type(k) if k is not None else k, v) for k, v in counter.items())
 
 
 def add_progress_bar(iterable, caption=None):
