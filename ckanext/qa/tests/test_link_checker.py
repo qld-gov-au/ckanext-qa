@@ -1,14 +1,13 @@
+# encoding: utf-8
+
 import logging
 from functools import wraps
 import json
 from urllib import urlencode
 from nose.tools import assert_in
-try:
-    from ckan.tests.legacy import WsgiAppCase
-except ImportError:
-    from ckan.tests import WsgiAppCase
 from nose.tools import assert_equal
 
+import ckan.tests.helpers as helpers
 from ckanext.archiver.tasks import update_package
 
 from mock_remote_server import MockEchoTestServer
@@ -37,12 +36,12 @@ def with_mock_url(url=''):
     return decorator
 
 
-class TestLinkChecker(WsgiAppCase):
+class TestLinkChecker():
     """
     Tests for link checker task
     """
     def check_link(self, url):
-        result = self.app.get('/qa/link_checker?%s' % urlencode({'url': url}))
+        result = helpers._get_test_app().get('/qa/link_checker?%s' % urlencode({'url': url}))
         return json.loads(result.body)[0]
 
     @with_mock_url('?status=200')
