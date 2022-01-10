@@ -3,7 +3,7 @@ behaving==2.0.0
 Appium-Python-Client<=0.52
 ckanapi==4.3
 ckantoolkit>=0.0.4
-factory-boy==2.1.1
+factory-boy==2.12.0
 flake8==3.8.3
 flask
 mock
