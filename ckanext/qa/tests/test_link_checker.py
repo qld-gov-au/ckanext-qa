@@ -4,9 +4,9 @@ import json
 from urllib import urlencode
 from nose.tools import assert_in
 try:
-    from ckan.tests.legacy import TestController as ControllerTestCase
+    from ckan.tests.legacy import WsgiAppCase
 except ImportError:
-    from ckan.tests import TestController as ControllerTestCase
+    from ckan.tests import WsgiAppCase
 from nose.tools import assert_equal
 
 from ckanext.archiver.tasks import update_package
@@ -37,7 +37,7 @@ def with_mock_url(url=''):
     return decorator
 
 
-class TestLinkChecker(ControllerTestCase):
+class TestLinkChecker(WsgiAppCase):
     """
     Tests for link checker task
     """
