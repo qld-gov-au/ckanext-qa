@@ -49,3 +49,28 @@ def go_to_organisation_page(context):
 @step(u'I go to register page')
 def go_to_register_page(context):
     when_i_visit_url(context, '/user/register')
+
+
+@step('I create a dataset with license {license} and resource file {file}')
+def create_dataset_json(context, license, file):
+    create_dataset(context, license, 'JSON', file)
+
+
+@step('I create a dataset with license {license} and {file_format} resource file {file}')
+def create_dataset(context, license, file_format, file):
+    assert context.persona
+    context.execute_steps(u"""
+        When I visit "dataset/new"
+        And I fill in title with random text
+        And I fill in "notes" with "Description"
+        And I fill in "version" with "1.0"
+        And I fill in "author_email" with "test@me.com"
+        And I execute the script "document.getElementById('field-license_id').value={license}"
+        Then I select "NO" from "de_identified_data"
+        And I press "Add Data"
+        And I attach the file {file} to "upload"
+        And I fill in "name" with "Test Resource"
+        And I execute the script "document.getElementById('field-format').value={file_format}"
+        And I fill in "description" with "Test Resource Description"
+        And I press "Finish"
+    """.format(license=license, file=file, file_format=file_format))
