@@ -8,7 +8,7 @@ Feature: Data usability rating
         Then I wait for 10 seconds
         When I reload
         Then I should see "Data usability rating"
-        And I should see an element with xpath "//div[contains(@class, 'qa openness-0')]"
+        And I should see an element with xpath "//h2[contains(text(), 'Openness')]"
 
 
     Scenario: As an admin user of my organisation, when I create a dataset with an open license and TXT resource, I can verify the score is 1
@@ -18,7 +18,7 @@ Feature: Data usability rating
         Then I wait for 10 seconds
         When I reload
         Then I should see "Data usability rating"
-        And I should see an element with xpath "//div[contains(@class, 'qa openness-1')]"
+        And I should see an element with xpath "//h2[contains(text(), 'Openness')]"
 
 
     Scenario: As an admin user of my organisation, when I create a dataset with an open license and XLS resource, I can verify the score is 2
@@ -28,7 +28,7 @@ Feature: Data usability rating
         Then I wait for 10 seconds
         When I reload
         Then I should see "Data usability rating"
-        And I should see an element with xpath "//div[contains(@class, 'qa openness-2')]"
+        And I should see an element with xpath "//h2[contains(text(), 'Openness')]"
 
 
     Scenario: As an admin user of my organisation, when I create a dataset with an open license and a CSV resource, I can verify the score is 3
@@ -38,7 +38,7 @@ Feature: Data usability rating
         Then I wait for 10 seconds
         When I reload
         Then I should see "Data usability rating"
-        And I should see an element with xpath "//div[contains(@class, 'qa openness-3')]"
+        And I should see an element with xpath "//h2[contains(text(), 'Openness')]"
 
 
     Scenario: As an admin user of my organisation, when I create a dataset with an open license and a JSON resource, I can verify the score is 3
@@ -48,7 +48,7 @@ Feature: Data usability rating
         Then I wait for 10 seconds
         When I reload
         Then I should see "Data usability rating"
-        And I should see an element with xpath "//div[contains(@class, 'qa openness-3')]"
+        And I should see an element with xpath "//h2[contains(text(), 'Openness')]"
 
 
     Scenario: As an admin user of my organisation, when I create a dataset with an open license and a RDF resource, I can verify the score is 4
@@ -58,4 +58,4 @@ Feature: Data usability rating
         Then I wait for 10 seconds
         When I reload
         Then I should see "Data usability rating"
-        And I should see an element with xpath "//div[contains(@class, 'qa openness-4')]"
+        And I should see an element with xpath "//h2[contains(text(), 'Openness')]"
