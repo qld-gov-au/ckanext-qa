@@ -2,6 +2,7 @@ from behave import step
 from behaving.web.steps import *  # noqa: F401, F403
 from behaving.personas.steps import *  # noqa: F401, F403
 from behaving.web.steps.url import when_i_visit_url
+import random
 
 
 @step('I go to homepage')
@@ -49,6 +50,14 @@ def go_to_organisation_page(context):
 @step(u'I go to register page')
 def go_to_register_page(context):
     when_i_visit_url(context, '/user/register')
+
+
+@step('I fill in title with random text')
+def title_random_text(context):
+    assert context.persona
+    context.execute_steps(u"""
+        When I fill in "title" with "Test Title {0}"
+    """.format(random.randrange(1000)))
 
 
 @step('I create a dataset with license {license} and resource file {file}')
