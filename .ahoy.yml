@@ -118,7 +118,7 @@ commands:
   test-bdd:
     usage: Run BDD tests.
     cmd: |
-      ahoy start-ckan-job-workers &
+      ahoy start-ckan-job-workers
       ahoy start-mailmock &
       sleep 5 &&
       ahoy cli "behave ${*:-test/features}" || \
