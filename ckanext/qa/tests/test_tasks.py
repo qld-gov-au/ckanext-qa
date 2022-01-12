@@ -89,6 +89,7 @@ def _test_resource(url='anything', format='TXT', archived=True, cached=True, lic
         archival = Archival.create(res_id)
         archival.cache_filepath = __file__ if cached else None  # just needs to exist
         archival.updated = TODAY
+        archival.status_id = Status.by_text('Archived successfully')
         model.Session.add(archival)
         model.Session.commit()
     return model.Resource.get(res_id)
@@ -116,6 +117,7 @@ class TestTask():
         cache_filepath = __file__  # just needs to exist
         archival.cache_filepath = cache_filepath
         archival.updated = TODAY
+        archival.status_id = Status.by_text('Archived successfully')
         model.Session.add(archival)
         model.Session.commit()
         # TODO show that QA hasn't run yet
