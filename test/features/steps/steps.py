@@ -86,6 +86,6 @@ def create_dataset(context, license, file_format, file):
 
 @step(u'I should see data usability rating {score}')
 def data_usability_rating_visible(context, score):
-    context.execute_steps("""
+    context.execute_steps(u"""
         Then I should see an element with xpath "//div[contains(@class, 'openness-{0}')]"
     """.format(score))
