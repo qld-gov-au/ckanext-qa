@@ -8,7 +8,7 @@ Feature: Data usability rating
         Then I wait for 10 seconds
         When I reload
         Then I should see data usability rating 0
-        When I click the link with text that contains "Test resource"
+        When I click the link with text that contains "Test Resource"
         Then I should see data usability rating 0
 
 
@@ -19,7 +19,7 @@ Feature: Data usability rating
         Then I wait for 10 seconds
         When I reload
         Then I should see data usability rating 1
-        When I click the link with text that contains "Test resource"
+        When I click the link with text that contains "Test Resource"
         Then I should see data usability rating 1
 
 
@@ -30,7 +30,7 @@ Feature: Data usability rating
         Then I wait for 10 seconds
         When I reload
         Then I should see data usability rating 2
-        When I click the link with text that contains "Test resource"
+        When I click the link with text that contains "Test Resource"
         Then I should see data usability rating 2
 
 
@@ -41,7 +41,7 @@ Feature: Data usability rating
         Then I wait for 10 seconds
         When I reload
         Then I should see data usability rating 3
-        When I click the link with text that contains "Test resource"
+        When I click the link with text that contains "Test Resource"
         Then I should see data usability rating 3
 
 
@@ -52,7 +52,7 @@ Feature: Data usability rating
         Then I wait for 10 seconds
         When I reload
         Then I should see data usability rating 3
-        When I click the link with text that contains "Test resource"
+        When I click the link with text that contains "Test Resource"
         Then I should see data usability rating 3
 
 
@@ -63,5 +63,5 @@ Feature: Data usability rating
         Then I wait for 10 seconds
         When I reload
         Then I should see data usability rating 5
-        When I click the link with text that contains "Test resource"
+        When I click the link with text that contains "Test Resource"
         Then I should see data usability rating 5
