@@ -56,12 +56,12 @@ Feature: Data usability rating
         Then I should see data usability rating 3
 
 
-    Scenario: As an organisation admin, when I create a dataset with an open license and RDF resource, I can verify the score is 4
+    Scenario: As an organisation admin, when I create a dataset with an open license and RDF resource, I can verify the score is 5
         Given "TestOrgAdmin" as the persona
         When I log in
         And I create a dataset with license "other-open" and "RDF" resource file "rdf_resource.rdf"
         Then I wait for 10 seconds
         When I reload
-        Then I should see data usability rating 4
+        Then I should see data usability rating 5
         When I click the link with text that contains "Test resource"
-        Then I should see data usability rating 4
+        Then I should see data usability rating 5
