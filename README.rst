@@ -5,6 +5,8 @@
 .. image:: https://travis-ci.org/ckan/ckanext-qa.svg?branch=master
     :target: https://travis-ci.org/ckan/ckanext-qa
 
+[![Tests](https://github.com/qld-gov-au/ckanext-qa/actions/workflows/test.yml/badge.svg)](https://github.com/qld-gov-au/ckanext-qa/actions/workflows/test.yml)
+
 CKAN QA Extension (Quality Assurance)
 =====================================
 
