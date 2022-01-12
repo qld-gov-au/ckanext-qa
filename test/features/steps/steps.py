@@ -82,3 +82,10 @@ def create_dataset(context, license, file_format, file):
         And I fill in "description" with "Test Resource Description"
         And I press "Finish"
     """.format(license=license, file=file, file_format=file_format))
+
+
+@step(u'I should see data usability rating {score}')
+def data_usability_rating_visible(context, score):
+    context.execute_steps("""
+        Then I should see an element with xpath "//div[contains(@class, 'openness-{0}')]"
+    """.format(score))
