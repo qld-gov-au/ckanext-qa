@@ -90,7 +90,7 @@ def munge_format_to_be_canonical(format_name):
 
 
 def create_qa_update_package_task(package, queue):
-    compat_enqueue('qa.update_package', tasks.update_package, queue, None, {'package_id': package.id})
+    compat_enqueue('qa.update_package', tasks.update_package, queue, kwargs={'package_id': package.id})
     log.debug('QA of package put into celery queue %s: %s',
               queue, package.name)
 
@@ -101,7 +101,7 @@ def create_qa_update_task(resource, queue):
     else:
         package = resource.package
 
-    compat_enqueue('qa.update', tasks.update, queue, None, {'resource_id': resource.id})
+    compat_enqueue('qa.update', tasks.update, queue, kwargs={'resource_id': resource.id})
 
     log.debug('QA of resource put into celery queue %s: %s/%s url=%r',
               queue, package.name, resource.id, resource.url)
