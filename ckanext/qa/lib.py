@@ -15,7 +15,7 @@ log = logging.getLogger(__name__)
 _RESOURCE_FORMAT_SCORES = None
 
 
-def compat_enqueue(name, fn, queue, args=None, kwargs=None):
+def compat_enqueue(name, fn, queue, args=[], kwargs={}):
 
     u'''
     Enqueue a background job using Celery or RQ.
