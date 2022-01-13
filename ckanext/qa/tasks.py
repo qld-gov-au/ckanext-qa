@@ -103,7 +103,7 @@ def load_translations(lang):
     registry.register(translator, fakepylons.translator)
 
 
-def update_package(package_id):
+def update_package(ckan_ini_filepath=None, package_id=None):
     """
     Given a package, calculates an openness score for each of its resources.
     It is more efficient to call this than 'update' for each resource.
@@ -139,7 +139,7 @@ def update_package_(package_id):
     _update_search_index(package.id)
 
 
-def update(resource_id):
+def update(ckan_ini_filepath=None, resource_id=None):
     """
     Given a resource, calculates an openness score.
 
