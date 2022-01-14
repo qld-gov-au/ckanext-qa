@@ -18,14 +18,6 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Generated-By: Babel 2.3.4\n"
 
-#: ckanext/qa/reports.py:83 ckanext/qa/reports.py:89 ckanext/qa/reports.py:150
-msgid "total_stars"
-msgstr "total_ticks"
-
-#: ckanext/qa/reports.py:84 ckanext/qa/reports.py:90 ckanext/qa/reports.py:151
-msgid "average_stars"
-msgstr "average_ticks"
-
 #: ckanext/qa/reports.py:165
 msgid "openness"
 msgstr "data_usability_rating"

@@ -15,7 +15,7 @@ log = logging.getLogger(__name__)
 _RESOURCE_FORMAT_SCORES = None
 
 
-def compat_enqueue(name, fn, queue, args=None):
+def compat_enqueue(name, fn, queue, args=[], kwargs={}):
 
     u'''
     Enqueue a background job using Celery or RQ.
@@ -24,7 +24,7 @@ def compat_enqueue(name, fn, queue, args=None):
         # Try to use RQ
         from ckan.plugins.toolkit import enqueue_job
         nice_name = name + " " + args[1] if (len(args) >= 2) else name
-        enqueue_job(fn, args=args, queue=queue, title=nice_name)
+        enqueue_job(fn, args=args, kwargs=kwargs, queue=queue, title=nice_name)
     except ImportError:
         # Fallback to Celery
         import uuid
@@ -90,7 +90,7 @@ def munge_format_to_be_canonical(format_name):
 
 
 def create_qa_update_package_task(package, queue):
-    compat_enqueue('qa.update_package', tasks.update_package, queue, args=[package.id])
+    compat_enqueue('qa.update_package', tasks.update_package, queue, kwargs={'package_id': package.id})
     log.debug('QA of package put into celery queue %s: %s',
               queue, package.name)
 
@@ -101,7 +101,7 @@ def create_qa_update_task(resource, queue):
     else:
         package = resource.package
 
-    compat_enqueue('qa.update', tasks.update, queue, args=[resource.id])
+    compat_enqueue('qa.update', tasks.update, queue, kwargs={'resource_id': resource.id})
 
     log.debug('QA of resource put into celery queue %s: %s/%s url=%r',
               queue, package.name, resource.id, resource.url)
