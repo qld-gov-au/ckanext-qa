@@ -3,7 +3,7 @@ import zipfile
 import os
 from collections import defaultdict
 import subprocess
-from io import StringIO
+from io import StringIO, BytesIO
 
 import xlrd
 import magic
@@ -201,15 +201,17 @@ def is_json(buf):
 
 def is_csv(buf):
     '''If the buffer is a CSV file then return True.'''
-    buf_rows = StringIO(buf)
-    table_set = messytables.CSVTableSet(buf_rows)
+    buf_bytes = bytes(buf, 'utf-8')
+    file_obj = BytesIO(buf_bytes)
+    table_set = messytables.CSVTableSet(file_obj)
     return _is_spreadsheet(table_set, 'CSV')
 
 
 def is_psv(buf):
     '''If the buffer is a PSV file then return True.'''
-    buf_rows = StringIO(buf)
-    table_set = messytables.CSVTableSet(buf_rows, delimiter='|')
+    buf_bytes = bytes(buf, 'utf-8')
+    file_obj = BytesIO(buf_bytes)
+    table_set = messytables.CSVTableSet(file_obj, delimiter='|')
     return _is_spreadsheet(table_set, 'PSV')
 
 
