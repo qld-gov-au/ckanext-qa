@@ -1,2 +1,3 @@
-recursive-include ckanext/qa/templates *
 include setup.py
+include README.rst
+recursive-include ckanext/qa *.html *.json *.js *.less *.css *.yml *.yaml *.txt
