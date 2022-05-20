@@ -1,13 +1,13 @@
-import os
-
+from ckan.plugins import toolkit
 
 def load_config(config_filepath):
-    import paste.deploy
-    config_abs_path = os.path.abspath(config_filepath)
-    conf = paste.deploy.appconfig('config:' + config_abs_path)
-    import ckan
-    ckan.config.environment.load_environment(conf.global_conf,
-                                             conf.local_conf)
+    toolkit.load_config(config_filepath)
+
+    try:
+        register_translator()
+    except ImportError:
+        # if we can't import Pylons, we don't need to
+        pass
 
 
 def register_translator():

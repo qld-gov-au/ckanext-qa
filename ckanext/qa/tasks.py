@@ -62,22 +62,6 @@ def register_translator():
     translator_obj = MockTranslator()
     registry.register(translator, translator_obj)
 
-def load_config(ckan_ini_filepath):
-    import paste.deploy
-    config_abs_path = os.path.abspath(ckan_ini_filepath)
-    conf = paste.deploy.appconfig('config:' + config_abs_path)
-    import ckan
-    ckan.config.environment.load_environment(conf.global_conf,
-                                             conf.local_conf)
-
-    # give routes enough information to run url_for
-    parsed = urlparse.urlparse(conf.get('ckan.site_url', 'http://0.0.0.0'))
-    request_config = routes.request_config()
-    request_config.host = parsed.netloc + parsed.path
-    request_config.protocol = parsed.scheme
-
-    load_translations(conf.get('ckan.locale_default', 'en'))
-
 
 def load_translations(lang):
     # Register a translator in this thread so that
@@ -141,7 +125,7 @@ def update_package_(package_id):
     _update_search_index(package.id)
 
 
-def update(ckan_ini_filepath, resource_id):
+def update(ckan_ini_filepath=None, resource_id=None):
     """
     Given a resource, calculates an openness score.
 
@@ -150,7 +134,6 @@ def update(ckan_ini_filepath, resource_id):
         'openness_score': score (int)
         'openness_score_reason': the reason for the score (string)
     """
-    load_config(ckan_ini_filepath)
     try:
         update_resource_(resource_id)
     except Exception as e:
