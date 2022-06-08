@@ -6,8 +6,7 @@ import datetime
 import json
 import os
 import traceback
-from urllib.parse import urlparse
-import routes
+import six
 
 from ckan.common import _
 
@@ -73,7 +72,7 @@ def load_translations(lang):
     registry.prepare()
 
     class FakePylons:
-            translator = None
+        translator = None
     fakepylons = FakePylons()
 
     class FakeRequest:
@@ -100,7 +99,7 @@ def update_package(package_id):
         update_package_(package_id)
     except Exception as e:
         log.error('Exception occurred during QA update_package: %s: %s',
-                  e.__class__.__name__,  str(e))
+                  e.__class__.__name__, e)
         raise
 
 
@@ -138,7 +137,7 @@ def update(ckan_ini_filepath=None, resource_id=None):
         update_resource_(resource_id)
     except Exception as e:
         log.error('Exception occurred during QA update_resource: %s: %s',
-                  e.__class__.__name__,  str(e))
+                  e.__class__.__name__, e)
         raise
 
 
@@ -206,8 +205,6 @@ def resource_score(resource):
     score_reason = ''
     format_ = None
 
-    #register_translator()
-
     try:
         score_reasons = []  # a list of strings detailing how we scored it
         archival = Archival.get_for_resource(resource_id=resource.id)
@@ -237,8 +234,8 @@ def resource_score(resource):
         format_ = format_ or None
     except Exception as e:
         log.error('Unexpected error while calculating openness score %s: %s\nException: %s',
-                  e.__class__.__name__,  str(e), traceback.format_exc())
-        score_reason = _("Unknown error: %s") % str(e)
+                  e.__class__.__name__, e, traceback.format_exc())
+        score_reason = _("Unknown error: %s") % e
         raise
 
     # Even if we can get the link, we should still treat the resource
@@ -278,7 +275,7 @@ def broken_link_error_message(archival):
         else:
             return ''
     messages = [_('File could not be downloaded.'),
-                _('Reason') + ':', str(archival.status) + '.',
+                _('Reason') + ':', six.text_type(archival.status) + '.',
                 _('Error details: %s.') % archival.reason,
                 _('Attempted on %s.') % format_date(archival.updated)]
     last_success = format_date(archival.last_success)

@@ -1,5 +1,8 @@
+# encoding: utf-8
+
 import click
 import ckanext.qa.commands as commands
+
 
 def get_commands():
 

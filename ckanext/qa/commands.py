@@ -92,50 +92,50 @@ def update(args, queue):
     log.info('Completed queueing')
 
 def view(package_ref=None):
-    
+
     q = model.Session.query(model.TaskStatus).filter_by(task_type='qa')
-    print ('QA records - %i TaskStatus rows' % q.count())
-    print ('      across %i Resources' % q.distinct('entity_id').count())
+    print('QA records - %i TaskStatus rows' % q.count())
+    print('      across %i Resources' % q.distinct('entity_id').count())
 
     if package_ref:
         pkg = model.Package.get(package_ref)
-        print ('Package %s %s' % (pkg.name, pkg.id))
+        print('Package %s %s' % (pkg.name, pkg.id))
         for res in pkg.resources:
-            print ('Resource %s' % res.id)
+            print('Resource %s' % res.id)
             for row in q.filter_by(entity_id=res.id):
-                print ('* %s = %r error=%r' % (row.key, row.value,
+                print('* %s = %r error=%r' % (row.key, row.value,
                                                 row.error))
 
 def migrate():
     q_status = model.Session.query(model.TaskStatus) \
         .filter_by(task_type='qa') \
         .filter_by(key='status')
-    print ('* %s with "status" will be deleted e.g. %s' % (q_status.count(),
+    print('* %s with "status" will be deleted e.g. %s' % (q_status.count(),
                                                             q_status.first()))
     q_failures = model.Session.query(model.TaskStatus) \
         .filter_by(task_type='qa') \
         .filter_by(key='openness_score_failure_count')
-    print ('* %s with openness_score_failure_count to be deleted e.g.\n%s'\
+    print('* %s with openness_score_failure_count to be deleted e.g.\n%s'\
         % (q_failures.count(), q_failures.first()))
     q_score = model.Session.query(model.TaskStatus) \
         .filter_by(task_type='qa') \
         .filter_by(key='openness_score')
-    print ('* %s with openness_score to migrate e.g.\n%s' % \
+    print('* %s with openness_score to migrate e.g.\n%s' % \
         (q_score.count(), q_score.first()))
     q_reason = model.Session.query(model.TaskStatus) \
         .filter_by(task_type='qa') \
         .filter_by(key='openness_score_reason')
-    print ('* %s with openness_score_reason to migrate e.g.\n%s' % \
+    print('* %s with openness_score_reason to migrate e.g.\n%s' % \
         (q_reason.count(), q_reason.first()))
     input('Press Enter to continue')
 
     q_status.delete()
     model.Session.commit()
-    print ('..."status" deleted')
+    print('..."status" deleted')
 
     q_failures.delete()
     model.Session.commit()
-    print ('..."openness_score_failure_count" deleted')
+    print('..."openness_score_failure_count" deleted')
 
     for task_status in q_score:
         reason_task_status = q_reason \
@@ -154,36 +154,36 @@ def migrate():
             'is_broken': None,
             })
         model.Session.commit()
-    print ('..."openness_score" and "openness_score_reason" migrated')
+    print('..."openness_score" and "openness_score_reason" migrated')
     count = q_reason.count()
     q_reason.delete()
     model.Session.commit()
-    print ('... %i remaining "openness_score_reason" deleted' % count)
+    print('... %i remaining "openness_score_reason" deleted' % count)
 
     model.Session.flush()
     model.Session.remove()
-    print ('Migration succeeded')
+    print('Migration succeeded')
 
 def clean():
-    print ('Before:')
+    print('Before:')
     view()
 
     q = model.Session.query(model.TaskStatus).filter_by(task_type='qa')
     q.delete()
     model.Session.commit()
 
-    print ('After:')
+    print('After:')
     view()
 
 def sniff(args):
     from ckanext.qa.sniff_format import sniff_file_format
     if len(args) < 1:
-        print ('Not enough arguments', args)
+        print('Not enough arguments', args)
         sys.exit(1)
     for filepath in args[0:]:
         format_ = sniff_file_format(filepath)
         if format_:
-            print ('Detected as: %s - %s' % (format_['format'],
+            print('Detected as: %s - %s' % (format_['format'],
                                             filepath))
         else:
-            print ('ERROR: Could not recognise format of: %s' % filepath)
+            print('ERROR: Could not recognise format of: %s' % filepath)

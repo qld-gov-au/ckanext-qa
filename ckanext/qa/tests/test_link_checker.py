@@ -1,3 +1,5 @@
+# encoding: utf-8
+
 import logging
 from functools import wraps
 import json
@@ -121,12 +123,12 @@ class TestLinkChecker(ControllerTestCase):
         # accept, because browsers accept this
         # see discussion: http://trac.ckan.org/ticket/318
         result = self.check_link(url)
-        print (result)
+        print(result)
         assert_equal(result['url_errors'], [])
 
     @with_mock_url('?status=200 ')
     def test_trailing_whitespace(self, url):
         # accept, because browsers accept this
         result = self.check_link(url)
-        print (result)
+        print(result)
         assert_equal(result['url_errors'], [])

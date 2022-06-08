@@ -1,4 +1,7 @@
+# encoding: utf-8
+
 from ckan.plugins import toolkit
+
 
 def load_config(config_filepath):
     toolkit.load_config(config_filepath)
@@ -48,5 +51,5 @@ def get_resources(state='active', publisher_ref=None, resource_id=None, dataset_
         resources = resources.filter(model.Resource.id == resource_id)
         criteria.append('Resource:%s' % resource_id)
     resources = resources.all()
-    print ('%i resources (%s)' % (len(resources), ' '.join(criteria)))
+    print('%i resources (%s)' % (len(resources), ' '.join(criteria)))
     return resources

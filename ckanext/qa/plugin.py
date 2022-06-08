@@ -1,3 +1,5 @@
+# encoding: utf-8
+
 import logging
 
 import ckan.model as model
@@ -6,9 +8,7 @@ import ckan.plugins as p
 from ckanext.archiver.interfaces import IPipe
 from ckanext.qa.logic import action, auth
 from ckanext.qa.model import QA, aggregate_qa_for_a_dataset
-import ckanext.qa.helpers as helpers
-import ckanext.qa.lib as lib
-import ckanext.qa.cli as cli
+from ckanext.qa import cli, helpers, lib
 from ckanext.report.interfaces import IReport
 
 
@@ -69,7 +69,7 @@ class QAPlugin(p.SingletonPlugin, p.toolkit.DefaultDatasetForm):
         return {
             'qa_resource_show': action.qa_resource_show,
             'qa_package_openness_show': action.qa_package_openness_show,
-            }
+        }
 
     # IAuthFunctions
 
@@ -77,7 +77,7 @@ class QAPlugin(p.SingletonPlugin, p.toolkit.DefaultDatasetForm):
         return {
             'qa_resource_show': auth.qa_resource_show,
             'qa_package_openness_show': auth.qa_package_openness_show,
-            }
+        }
 
     # ITemplateHelpers
 
@@ -87,7 +87,7 @@ class QAPlugin(p.SingletonPlugin, p.toolkit.DefaultDatasetForm):
             helpers.qa_openness_stars_resource_html,
             'qa_openness_stars_dataset_html':
             helpers.qa_openness_stars_dataset_html,
-            }
+        }
 
     # IPackageController
 

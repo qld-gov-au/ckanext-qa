@@ -1,5 +1,10 @@
+# encoding: utf-8
+
 from collections import Counter
 import copy
+import logging
+import six
+
 try:
     from collections import OrderedDict  # from python 2.7
 except ImportError:
@@ -10,7 +15,6 @@ import ckan.model as model
 import ckan.plugins as p
 from ckanext.report import lib
 
-import logging
 
 log = logging.getLogger(__name__)
 
@@ -71,9 +75,9 @@ def openness_index(include_sub_organizations=False):
         results = counts
 
     table = []
-    for org_name, org_counts in results.items():
-        total_stars = sum([k*v for k, v in org_counts['score_counts'].items() if k])
-        num_pkgs_scored = sum([v for k, v in org_counts['score_counts'].items()
+    for org_name, org_counts in six.iteritems(results):
+        total_stars = sum([k * v for k, v in six.iteritems(org_counts['score_counts']) if k])
+        num_pkgs_scored = sum([v for k, v in six.iteritems(org_counts['score_counts'])
                               if k is not None])
         average_stars = round(float(total_stars) / num_pkgs_scored, 1) \
             if num_pkgs_scored else 0.0
@@ -82,7 +86,7 @@ def openness_index(include_sub_organizations=False):
             ('organization_name', org_name),
             ('total_stars', total_stars),
             ('average_stars', average_stars),
-            ))
+        ))
         row.update(jsonify_counter(org_counts['score_counts']))
         table.append(row)
 
@@ -136,11 +140,11 @@ def openness_for_organization(organization=None, include_sub_organizations=False
                 ('organization_title', org.title),
                 ('openness_score', qa['openness_score']),
                 ('openness_score_reason', qa['openness_score_reason']),
-                )))
+            )))
             score_counts[qa['openness_score']] += 1
 
-    total_stars = sum([k*v for k, v in score_counts.items() if k])
-    num_pkgs_with_stars = sum([v for k, v in score_counts.items()
+    total_stars = sum([k * v for k, v in six.iteritems(score_counts) if k])
+    num_pkgs_with_stars = sum([v for k, v in six.iteritems(score_counts)
                                if k is not None])
     average_stars = round(float(total_stars) / num_pkgs_with_stars, 1) \
         if num_pkgs_with_stars else 0.0
@@ -172,14 +176,14 @@ openness_report_info = {
     'option_combinations': openness_report_combinations,
     'generate': openness_report,
     'template': 'report/openness.html',
-    }
+}
 
 
 def jsonify_counter(counter):
     # When counters are stored as JSON, integers become strings. Do the conversion
     # here to ensure that when you run the report the first time, you get the same
     # response as subsequent times that go through the cache/JSON.
-    return dict((str(k) if k is not None else k, v) for k, v in counter.items())
+    return dict((six.text_type(k) if k is not None else k, v) for k, v in six.iteritems(counter))
 
 
 def add_progress_bar(iterable, caption=None):

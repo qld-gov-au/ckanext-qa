@@ -1,7 +1,10 @@
-import os
+# encoding: utf-8
+
 import json
-import re
 import logging
+import os
+import re
+import six
 
 from ckan.plugins.toolkit import config
 
@@ -25,7 +28,7 @@ def compat_enqueue(name, fn, queue, args=None):
         # Fallback to Celery
         import uuid
         from ckan.lib.celery_app import celery
-        celery.send_task(name, args=args + [queue], task_id=str(uuid.uuid4()))
+        celery.send_task(name, args=args + [queue], task_id=six.text_type(uuid.uuid4()))
 
 
 def resource_format_scores():
@@ -87,7 +90,7 @@ def munge_format_to_be_canonical(format_name):
 
 def create_qa_update_package_task(package, queue):
     compat_enqueue('qa.update_package', tasks.update_package,
-                   queue,  args=[package.id])
+                   queue, args=[package.id])
     log.debug('QA of package put into queue %s: %s',
               queue, package.name)
 

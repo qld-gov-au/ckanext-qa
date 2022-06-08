@@ -7,6 +7,7 @@ from threading import Thread
 from time import sleep
 from wsgiref.simple_server import make_server
 import urllib2
+import six
 import socket
 
 
@@ -37,7 +38,7 @@ class MockHTTPServer(object):
         This uses context manager to make sure the server is stopped::
 
             >>> with MockTestServer().serve() as addr:
-            ...     print urllib2.urlopen('%s/?content=hello+world').read()
+            ...     print(urllib2.urlopen('%s/?content=hello+world').read())
             ...
             'hello world'
         """
@@ -80,8 +81,8 @@ class MockHTTPServer(object):
         called and its return value used.
         """
         modpath, var = varspec.split(':')
-        mod = reduce(getattr, modpath.split('.')[1:], __import__(modpath))
-        var = reduce(getattr, var.split('.'), mod)
+        mod = six.moves.reduce(getattr, modpath.split('.')[1:], __import__(modpath))
+        var = six.moves.reduce(getattr, var.split('.'), mod)
         try:
             return var()
         except TypeError:
@@ -96,7 +97,8 @@ class MockEchoTestServer(MockHTTPServer):
         a 500 error response: 'http://localhost/?status=500'
 
         a 200 OK response, returning the function's docstring:
-         'http://localhost/?status=200;content-type=text/plain;content_var=ckan.tests.lib.test_package_search:test_wsgi_app.__doc__'
+        'http://localhost/?status=200;content-type=text/plain;content_var
+        =ckan.tests.lib.test_package_search:test_wsgi_app.__doc__'
 
     To specify content, use:
 
@@ -116,7 +118,7 @@ class MockEchoTestServer(MockHTTPServer):
         else:
             content = request.str_params.get('content', '')
 
-        if isinstance(content, str):
+        if isinstance(content, six.text_type):
             raise TypeError("Expected raw byte string for content")
 
         headers = [
@@ -125,7 +127,7 @@ class MockEchoTestServer(MockHTTPServer):
             if item[0] not in ('content', 'status')
         ]
         if content:
-            headers += [('Content-Length', str(len(content)))]
+            headers += [('Content-Length', six.binary_type(len(content)))]
         start_response(
             '%d %s' % (status, responses[status]),
             headers
