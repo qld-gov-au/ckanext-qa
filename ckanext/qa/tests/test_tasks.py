@@ -1,6 +1,6 @@
 import requests
 import logging
-import urllib
+from six.moves.urllib.parse import quote
 import datetime
 
 from nose.tools import assert_equal
@@ -152,7 +152,7 @@ class TestResourceScore():
     def _set_task_status(cls, task_type, task_status_str):
         url = '%s/set_task_status/%s/%s' % (cls.fake_ckan_url,
                                             task_type,
-                                            urllib.quote(task_status_str))
+                                            quote(task_status_str))
         res = requests.get(url)
         assert res.status_code == 200
 

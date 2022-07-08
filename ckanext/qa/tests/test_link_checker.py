@@ -3,7 +3,7 @@
 import logging
 from functools import wraps
 import json
-from urllib import urlencode
+from six.moves.urllib.parse import urlencode
 from nose.tools import assert_in
 from nose.tools import assert_equal
 
