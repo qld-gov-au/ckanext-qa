@@ -11,8 +11,8 @@ import logging
 import json
 import datetime
 
-import common
-from running_stats import StatsList
+from . import common
+from .running_stats import StatsList
 
 # pip install 'ProgressBar==2.3'
 from progressbar import ProgressBar, Percentage, Bar, ETA
