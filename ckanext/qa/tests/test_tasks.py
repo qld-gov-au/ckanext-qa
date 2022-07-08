@@ -1,3 +1,5 @@
+# encoding: utf-8
+
 import requests
 import logging
 from six.moves.urllib.parse import quote
@@ -6,9 +8,7 @@ import datetime
 from nose.tools import assert_equal
 from nose.plugins.skip import SkipTest
 from ckan import model
-from ckan.logic import get_action
-from ckan import plugins as p
-import ckan.lib.helpers as ckan_helpers
+from ckan.plugins.toolkit import check_ckan_version, get_action, h
 try:
     from ckan.tests.helpers import reset_db
     from ckan.tests import factories as ckan_factories
@@ -53,7 +53,7 @@ ckanext.qa.tasks.sniff_file_format = mock_sniff_file_format
 def set_sniffed_format(format_name):
     global sniffed_format
     if format_name:
-        format_tuple = ckan_helpers.resource_formats().get(format_name.lower())
+        format_tuple = h.resource_formats().get(format_name.lower())
         sniffed_format = {'format': format_tuple[1]}
     else:
         sniffed_format = None
@@ -213,7 +213,7 @@ class TestResourceScore():
 
     def test_by_format_field_excel(self):
         set_sniffed_format(None)
-        if p.toolkit.check_ckan_version(max_version='2.4.99'):
+        if check_ckan_version(max_version='2.4.99'):
             raise SkipTest
         result = resource_score(_test_resource(format='Excel'))
         assert_equal(result['format'], 'XLS')
