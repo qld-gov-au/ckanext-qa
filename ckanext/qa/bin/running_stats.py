@@ -6,7 +6,7 @@ StatsList - when you also want to remember an ID associated with each incidence
 
 Examples:
 
-from running_stats import StatsCount
+from .running_stats import StatsCount
 package_stats = StatsCount()
 for package in packages:
     if package.enabled:
@@ -18,7 +18,7 @@ print(package_stats.report())
 > deleted: 30
 > not deleted: 70
 
-from running_stats import StatsList
+from .running_stats import StatsList
 package_stats = StatsList()
 for package in packages:
     if package.enabled:
