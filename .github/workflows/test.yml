@@ -11,10 +11,10 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        ckan-version: [2.8.8, 2.9.5]
+        ckan-version: [ckan-2.8.8, ckan-2.9.5]
         python-version: [py2, py3]
         exclude:
-          - ckan-version: 2.8.8
+          - ckan-version: ckan-2.8.8
             python-version: py3
 
     name: Continuous Integration build on CKAN ${{ matrix.ckan-version }} ${{ matrix.python-version }}
