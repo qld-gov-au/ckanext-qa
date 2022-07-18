@@ -21,7 +21,7 @@ add_user_if_needed () {
         password="${4:-Password123!}"
 }
 
-add_user_if_needed "${CKAN_USER_NAME}" "${CKAN_DISPLAY_NAME}" "${CKAN_USER_EMAIL}"
+add_user_if_needed "$CKAN_USER_NAME" "$CKAN_DISPLAY_NAME" "$CKAN_USER_EMAIL"
 ckan_cli sysadmin add "${CKAN_USER_NAME}"
 
 API_KEY=$(ckan_cli user show "${CKAN_USER_NAME}" | tr -d '\n' | sed -r 's/^(.*)apikey=(\S*)(.*)/\2/')
@@ -51,9 +51,9 @@ TEST_ORG=$( \
     ${CKAN_ACTION_URL}/organization_create
 )
 
-TEST_ORG_ID=$(echo $TEST_ORG | sed -r 's/^(.*)"id": "(.*)",(.*)/\2/')
+TEST_ORG_ID=$(echo $TEST_ORG | sed -r 's/^(.*)"id": "([^"]*)",(.*)/\2/')
 
-echo "Assigning test users to ${TEST_ORG_TITLE} Organisation:"
+echo "Assigning test users to '${TEST_ORG_TITLE}' organisation (${TEST_ORG_ID}):"
 
 curl -LsH "Authorization: ${API_KEY}" \
     --data "id=${TEST_ORG_ID}&object=test_org_admin&object_type=user&capacity=admin" \

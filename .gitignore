@@ -24,7 +24,13 @@ env/
 build/
 develop-eggs/
 dist/
+downloads/
+eggs/
+lib/
+lib64/
+parts/
 sdist/
+var/
 *.egg-info/
 .installed.cfg
 *.egg
@@ -47,6 +53,7 @@ htmlcov/
 .cache
 nosetests.xml
 coverage.xml
+test/screenshots
 
 # Translations
 *.mo
@@ -57,6 +64,9 @@ coverage.xml
 
 # Sphinx documentation
 docs/_build/
+.env.local
+screenshots
+!/test/screenshots/.gitkeep
 
 #cicd travis
 subdir
