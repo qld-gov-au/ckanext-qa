@@ -11,7 +11,11 @@ pip install -r "dev-requirements.txt"
 if [ "$CKAN_VERSION" = "ckan-2.8.8" ]; then
     pip install -r "dev-requirements-2.8.txt"
 fi
-pip install -r "requirements.txt"
+if [ "$PYTHON_VERSION" = "py2" ]; then
+    pip install -r "requirements-py2.txt"
+else
+    pip install -r "requirements.txt"
+fi
 pip install -r "${VENV_DIR}/src/ckanext-archiver/requirements.txt"
 python setup.py develop
 installed_name=$(grep '^\s*name=' setup.py |sed "s|[^']*'\([-a-zA-Z0-9]*\)'.*|\1|")
