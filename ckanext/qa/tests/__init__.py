@@ -1,11 +1,15 @@
 import mock
-from ckan.lib.cli import MockTranslator
 
 
 def setup():
     # Register a mock translator instead of having ckan domain translations defined
-    patcher = mock.patch('pylons.i18n.translation._get_translator', return_value=MockTranslator())
-    patcher.start()
+    try:
+        from ckan.lib.cli import MockTranslator
+        patcher = mock.patch('pylons.i18n.translation._get_translator', return_value=MockTranslator())
+        patcher.start()
+    except ImportError:
+        # if Pylons isn't present, we don't need it
+        pass
 
 
 def teardown():
