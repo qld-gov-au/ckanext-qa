@@ -1,6 +1,4 @@
 ---
-#based on https://raw.githubusercontent.com/ckan/ckanext-scheming/master/.github/workflows/test.yml
-# alternative https://github.com/ckan/ckan/blob/master/contrib/cookiecutter/ckan_extension/%7B%7Bcookiecutter.project%7D%7D/.github/workflows/test.yml
 name: Tests
 on:
   push:
@@ -13,14 +11,19 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        ckan-version: [2.8.8, 2.9.4-qgov.2]
+        ckan-version: [2.8.8, 2.9.5]
+        python-version: [py2, py3]
+        exclude:
+          - ckan-version: 2.8.8
+            python-version: py3
 
-    name: Continuous Integration build on CKAN ${{ matrix.ckan-version }}
+    name: Continuous Integration build on CKAN ${{ matrix.ckan-version }} ${{ matrix.python-version }}
     runs-on: ubuntu-latest
     container: integratedexperts/ci-builder
     env:
-      CKAN_REPO: qld-gov-au/ckan
+      CKAN_REPO: ckan/ckan
       CKAN_VERSION: ${{ matrix.ckan-version }}
+      PYTHON_VERSION: ${{ matrix.python-version }}
 
     steps:
       - uses: actions/checkout@v2
@@ -37,7 +40,7 @@ jobs:
       - name: Retrieve screenshots
         if: failure()
         run: .circleci/process-artifacts.sh
-        timeout-minutes: 3
+        timeout-minutes: 1
 
       - name: Upload screenshots
         if: failure()
