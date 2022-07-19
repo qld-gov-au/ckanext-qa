@@ -18,11 +18,7 @@ import requests
 from ckan.common import _
 from ckan.lib import i18n
 from ckan.plugins import toolkit
-try:
-    from ckan.plugins.toolkit import config
-except ImportError:
-    from pylons import config
-import ckan.lib.helpers as ckan_helpers
+from ckan.plugins.toolkit import check_ckan_version, config, h as ckan_helpers
 
 from ckanext.archiver.model import Archival, Status
 from . import interfaces as qa_interfaces, lib, sniff_format
@@ -611,3 +607,37 @@ def custom_resource_score(resource, resource_score):
     Broadcasts an IQA notification that an qa resource score was calculated
     '''
     return qa_interfaces.IQA.custom_resource_score(resource, resource_score)
+
+
+def compat_enqueue(name, fn, queue, args=[], kwargs={}):
+    u'''
+    Enqueue a background job using Celery or RQ.
+    '''
+    try:
+        # Try to use RQ
+        from ckan.plugins.toolkit import enqueue_job
+        nice_name = name + " " + args[1] if (len(args) >= 2) else name
+        enqueue_job(fn, args=args, kwargs=kwargs, queue=queue, title=nice_name)
+    except ImportError:
+        # Fallback to Celery
+        import uuid
+        from ckan.lib.celery_app import celery
+        celery.send_task(name, args=args + [queue], task_id=six.text_type(uuid.uuid4()))
+
+
+def create_qa_update_package_task(package, queue):
+    compat_enqueue('qa.update_package', update_package, queue, kwargs={'package_id': package.id})
+    log.debug('QA of package put into celery queue %s: %s',
+              queue, package.name)
+
+
+def create_qa_update_task(resource, queue):
+    if check_ckan_version(max_version='2.2.99'):
+        package = resource.resource_group.package
+    else:
+        package = resource.package
+
+    compat_enqueue('qa.update', update, queue, kwargs={'resource_id': resource.id})
+
+    log.debug('QA of resource put into celery queue %s: %s/%s url=%r',
+              queue, package.name, resource.id, resource.url)
