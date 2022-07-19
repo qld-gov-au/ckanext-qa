@@ -26,7 +26,6 @@ services:
         SITE_URL: "http://${PROJECT}.docker.amazee.io"
         CKAN_REPO:
         CKAN_VERSION:
-        PYTHON_VERSION:
     depends_on:
       - postgres
       - solr

@@ -46,6 +46,6 @@ jobs:
         if: failure()
         uses: actions/upload-artifact@v2
         with:
-          name: CKAN ${{ matrix.ckan-version }} screenshots
+          name: CKAN ${{ matrix.ckan-version }} ${{ matrix.python-version }} screenshots
           path: /tmp/artifacts/behave/screenshots
         timeout-minutes: 1
