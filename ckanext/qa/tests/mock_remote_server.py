@@ -8,6 +8,7 @@ from time import sleep
 from wsgiref.simple_server import make_server
 import six
 from six.moves import reduce
+from six.moves.http_client import responses
 from six.moves.urllib.request import urlopen
 import socket
 
@@ -109,7 +110,6 @@ class MockEchoTestServer(MockHTTPServer):
 
     def __call__(self, environ, start_response):
 
-        from httplib import responses
         from webob import Request
         request = Request(environ)
         status = int(request.str_params.get('status', '200'))
