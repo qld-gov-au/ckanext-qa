@@ -462,7 +462,7 @@ def check_output(*popenargs, **kwargs):
         if cmd is None:
             cmd = popenargs[0]
         raise Exception('Non-zero exit status %s: %s' % (retcode, output))
-    return output
+    return six.text_type(output)
 
 
 def run_bsd_file(filepath):
