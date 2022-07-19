@@ -23,10 +23,9 @@ try:
 except ImportError:
     from pylons import config
 import ckan.lib.helpers as ckan_helpers
-import lib
+
 from ckanext.archiver.model import Archival, Status
-from ckanext.qa import interfaces as qa_interfaces
-from ckanext.qa.sniff_format import sniff_file_format
+from . import interfaces as qa_interfaces, lib, sniff_format
 
 import logging
 
@@ -363,7 +362,7 @@ def score_by_sniffing_data(archival, resource, score_reasons):
 
     if filepath:
         try:
-            sniffed_format = sniff_file_format(filepath)
+            sniffed_format = sniff_format.sniff_file_format(filepath)
         finally:
             if delete_file:
                 try:
