@@ -47,7 +47,7 @@ def mock_sniff_file_format(filepath):
     return sniffed_format
 
 
-ckanext.qa.tasks.sniff_file_format = mock_sniff_file_format
+ckanext.qa.tasks.sniff_format.sniff_file_format = mock_sniff_file_format
 
 
 def set_sniffed_format(format_name):
