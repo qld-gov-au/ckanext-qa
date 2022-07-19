@@ -45,22 +45,22 @@ class TestLinkChecker():
         return json.loads(result.body)[0]
 
     @with_mock_url('?status=200')
-    def test_url_working_but_formatless(self, url):
+    def test_url_working_but_formatless(self, url=None):
         result = self.check_link(url)
         assert_equal(result['format'], None)
 
     @with_mock_url('file.csv')
-    def test_format_by_url_extension(self, url):
+    def test_format_by_url_extension(self, url=None):
         result = self.check_link(url)
         assert_equal(result['format'], 'CSV')
 
     @with_mock_url('file.csv.zip')
-    def test_format_by_url_extension_zipped(self, url):
+    def test_format_by_url_extension_zipped(self, url=None):
         result = self.check_link(url)
         assert_equal(result['format'], 'CSV / ZIP')
 
     @with_mock_url('file.f1.f2')
-    def test_format_by_url_extension_unknown(self, url):
+    def test_format_by_url_extension_unknown(self, url=None):
         result = self.check_link(url)
         assert_equal(result['format'], 'F1 / F2')
 
@@ -73,12 +73,12 @@ class TestLinkChecker():
         assert_equal(result['format'], '')
 
     @with_mock_url('?status=200;content-type=text/plain')
-    def test_format_by_mimetype_txt(self, url):
+    def test_format_by_mimetype_txt(self, url=None):
         result = self.check_link(url)
         assert_equal(result['format'], 'TXT')
 
     @with_mock_url('?status=200;content-type=text/csv')
-    def test_format_by_mimetype_csv(self, url):
+    def test_format_by_mimetype_csv(self, url=None):
         result = self.check_link(url)
         assert_equal(result['format'], 'CSV')
 
@@ -95,18 +95,18 @@ class TestLinkChecker():
         assert_in("URL parsing failure - did not find a host name", result['url_errors'])
 
     @with_mock_url('?status=503')
-    def test_url_with_503(self, url):
+    def test_url_with_503(self, url=None):
         result = self.check_link(url)
         assert_in('Server returned HTTP error status: 503 Service Unavailable', result['url_errors'])
 
     @with_mock_url('?status=404')
-    def test_url_with_404(self, url):
+    def test_url_with_404(self, url=None):
         result = self.check_link(url)
         assert_in('Server returned HTTP error status: 404 Not Found', result['url_errors'])
 
     # Disabled as doesn't work
     # @with_mock_url('')
-    # def test_url_with_30x_follows_redirect(self, url):
+    # def test_url_with_30x_follows_redirect(self, url=None):
     #    redirect_url = url + u'?status=200&content=test&content-type=text/csv'
     #    url += u'?status=301&location=%s' % quote_plus(redirect_url)
     #    result = self.check_link(url)
@@ -116,7 +116,7 @@ class TestLinkChecker():
     # e.g. "http://www.dasa.mod.uk/applications/newWeb/www/index.php?page=48
     # &thiscontent=180&date=2011-05-26&pubType=1&PublishTime=09:30:00&from=home&tabOption=1"
     @with_mock_url('?time=09:30&status=200')
-    def test_colon_in_query_string(self, url):
+    def test_colon_in_query_string(self, url=None):
         # accept, because browsers accept this
         # see discussion: http://trac.ckan.org/ticket/318
         result = self.check_link(url)
@@ -124,7 +124,7 @@ class TestLinkChecker():
         assert_equal(result['url_errors'], [])
 
     @with_mock_url('?status=200 ')
-    def test_trailing_whitespace(self, url):
+    def test_trailing_whitespace(self, url=None):
         # accept, because browsers accept this
         result = self.check_link(url)
         print(result)
