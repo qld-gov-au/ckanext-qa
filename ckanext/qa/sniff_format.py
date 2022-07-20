@@ -25,7 +25,7 @@ def read_unknown_encoding(filepath, count, mode='r'):
         try:
             with io.open(filepath, mode=mode, encoding=encoding) as f:
                 return f.read(count)
-        except UnicodeDecodeError:
+        except (UnicodeDecodeError, UnicodeEncodeError):
             pass
     else:
         log.debug("Unable to recognise char encoding of %s", filepath)
