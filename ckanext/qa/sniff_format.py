@@ -202,14 +202,14 @@ def is_json(buf):
 
 def is_csv(buf):
     '''If the buffer is a CSV file then return True.'''
-    buf_rows = six.BytesIO(buf)
+    buf_rows = six.BytesIO(six.ensure_binary(buf))
     table_set = messytables.CSVTableSet(buf_rows)
     return _is_spreadsheet(table_set, 'CSV')
 
 
 def is_psv(buf):
     '''If the buffer is a PSV file then return True.'''
-    buf_rows = six.BytesIO(buf)
+    buf_rows = six.BytesIO(six.ensure_binary(buf))
     table_set = messytables.CSVTableSet(buf_rows, delimiter='|')
     return _is_spreadsheet(table_set, 'PSV')
 
