@@ -1,20 +1,21 @@
 # encoding: utf-8
-import re
-import zipfile
-import os
-from collections import defaultdict
-import six
-import subprocess
-from six import StringIO
 
-import xlrd
+from collections import defaultdict
+import logging
+import os
+import re
 import magic
 import messytables
+import six
+from six import StringIO
+import subprocess
+import xlrd
+import zipfile
 
-import lib
 from ckan.lib import helpers as ckan_helpers
 
-import logging
+from . import lib
+
 
 log = logging.getLogger(__name__)
 
