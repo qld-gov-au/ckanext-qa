@@ -1,6 +1,7 @@
 # encoding: utf-8
 
 from collections import defaultdict
+import io
 import logging
 import os
 import re
@@ -22,7 +23,7 @@ log = logging.getLogger(__name__)
 def read_unknown_encoding(filepath, count, mode='r'):
     for encoding in ['utf-8', 'iso-8859-1']:
         try:
-            with open(filepath, mode=mode, encoding=encoding) as f:
+            with io.open(filepath, mode=mode, encoding=encoding) as f:
                 return f.read(count)
         except UnicodeDecodeError:
             pass
