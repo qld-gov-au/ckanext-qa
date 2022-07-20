@@ -1,7 +1,6 @@
 # encoding: utf-8
 
 from collections import defaultdict
-import io
 import logging
 import os
 import re
@@ -21,9 +20,13 @@ log = logging.getLogger(__name__)
 
 
 def read_unknown_encoding(filepath, count, mode='r'):
+    if six.PY2:
+        # Py2 doesn't have the same encoding behaviour as Py3
+        with open(filepath, mode) as f:
+            return f.read(count)
     for encoding in ['utf-8', 'iso-8859-1']:
         try:
-            with io.open(filepath, mode=mode, encoding=encoding) as f:
+            with open(filepath, mode=mode, encoding=encoding) as f:
                 return f.read(count)
         except (UnicodeDecodeError, UnicodeEncodeError):
             pass
