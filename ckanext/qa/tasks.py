@@ -215,7 +215,11 @@ def resource_score(resource):
     score_reason = ''
     format_ = None
 
-    register_translator()
+    try:
+        register_translator()
+    except ImportError:
+        # if we can't import Pylons, we don't need to
+        pass
 
     try:
         score_reasons = []  # a list of strings detailing how we scored it
