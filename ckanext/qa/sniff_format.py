@@ -249,8 +249,8 @@ def _is_spreadsheet(table_set, format_):
                                  get_cells_per_row(num_cells, num_rows),
                                  num_cells, num_rows)
                         return True
-    except messytables.ReadError:
-        log.info('Not %s - unable to parse as a table', format_)
+    except messytables.ReadError as e:
+        log.info('Not %s - unable to parse as a table: %s', format_, e)
         return False
     finally:
         pass
