@@ -85,8 +85,13 @@ class TestLinkChecker():
     def test_file_url(self):
         url = u'file:///home/root/test.txt'
         result = self.check_link(url)
-        assert_in(u'Invalid url scheme. Please use one of: ftp http https',
-                  result['url_errors'])
+        for error in result['url_errors']:
+            # can't just use assert_in because the allowed types
+            # have unpredictable ordering
+            if u'Invalid url scheme. Please use one of:' in error:
+                break
+        else:
+            assert False, "Expected 'file://' scheme to be rejected"
         # assert_raises(LinkCheckerError, link_checker, context, data)
 
     def test_empty_url(self):
