@@ -19,6 +19,18 @@ from . import lib
 log = logging.getLogger(__name__)
 
 
+def read_unknown_encoding(filepath, count, mode='r'):
+    for encoding in ['utf-8', 'iso-8859-1']:
+        try:
+            with open(filepath, mode=mode, encoding=encoding) as f:
+                return f.read(count)
+        except UnicodeDecodeError:
+            pass
+    else:
+        log.debug("Unable to recognise char encoding of %s", filepath)
+        return None
+
+
 def sniff_file_format(filepath):
     '''For a given filepath, work out what file format it is.
 
@@ -43,8 +55,7 @@ def sniff_file_format(filepath):
     if mime_type:
         # some operating systems magic mime xml as text/xml
         if mime_type == 'application/xml' or mime_type == 'text/xml':
-            with open(filepath) as f:
-                buf = f.read(5000)
+            buf = read_unknown_encoding(filepath, 5000)
             format_ = get_xml_variant_including_xml_declaration(buf)
         elif mime_type == 'application/zip':
             format_ = get_zipped_format(filepath)
@@ -62,13 +73,12 @@ def sniff_file_format(filepath):
                 # e.g. Shapefile
                 format_ = run_bsd_file(filepath)
             if not format_:
-                with open(filepath) as f:
+                with open(filepath, 'rb') as f:
                     buf = f.read(500)
                 format_ = is_html(buf)
         elif mime_type == 'text/html':
             # Magic can mistake IATI for HTML
-            with open(filepath) as f:
-                buf = f.read(100)
+            buf = read_unknown_encoding(filepath, 100)
             if is_iati(buf):
                 format_ = {'format': 'IATI'}
 
@@ -80,8 +90,7 @@ def sniff_file_format(filepath):
         if not format_:
             if mime_type.startswith('text/'):
                 # is it JSON?
-                with open(filepath, 'rU') as f:
-                    buf = f.read(10000)
+                buf = read_unknown_encoding(filepath, 10000, mode='rtU')
                 if is_json(buf):
                     format_ = {'format': 'JSON'}
                 # is it CSV?
@@ -109,8 +118,7 @@ def sniff_file_format(filepath):
 
         if format_['format'] == 'TXT':
             # is it JSON?
-            with open(filepath, 'rU') as f:
-                buf = f.read(10000)
+            buf = read_unknown_encoding(filepath, 10000, mode='rtU')
             if is_json(buf):
                 format_ = {'format': 'JSON'}
             # is it CSV?
@@ -126,8 +134,7 @@ def sniff_file_format(filepath):
 
         elif format_['format'] == 'HTML':
             # maybe it has RDFa in it
-            with open(filepath) as f:
-                buf = f.read(100000)
+            buf = read_unknown_encoding(filepath, 100000)
             if has_rdfa(buf):
                 format_ = {'format': 'RDFa'}
     else:
@@ -261,7 +268,7 @@ def _is_spreadsheet(table_set, format_):
 def is_html(buf):
     '''If this buffer is HTML, return that format type, else None.'''
     xml_re = r'.{0,3}\s*(<\?xml[^>]*>\s*)?(<!doctype[^>]*>\s*)?<html[^>]*>'
-    match = re.match(xml_re, buf, re.IGNORECASE)
+    match = re.match(xml_re, six.ensure_text(buf), re.IGNORECASE)
     if match:
         log.info('HTML tag detected')
         return {'format': 'HTML'}
