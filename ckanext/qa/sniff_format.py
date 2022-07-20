@@ -24,7 +24,7 @@ def read_unknown_encoding(filepath, count, mode='r'):
         # Py2 doesn't have the same encoding behaviour as Py3
         with open(filepath, mode) as f:
             return f.read(count)
-    for encoding in ['utf-8', 'iso-8859-1']:
+    for encoding in ['utf-16', 'utf-8', 'iso-8859-1']:
         try:
             with open(filepath, mode=mode, encoding=encoding) as f:
                 return f.read(count)
