@@ -126,10 +126,10 @@ def sniff_file_format(filepath):
             if is_json(buf):
                 format_ = {'format': 'JSON'}
             # is it CSV?
-            elif is_csv(buf):
-                format_ = {'format': 'CSV'}
             elif is_psv(buf):
                 format_ = {'format': 'PSV'}
+            elif is_csv(buf):
+                format_ = {'format': 'CSV'}
             # XML files without the "<?xml ... ?>" tag end up here
             elif is_xml_but_without_declaration(buf):
                 format_ = get_xml_variant_without_xml_declaration(buf)
