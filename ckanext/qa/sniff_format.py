@@ -1,22 +1,38 @@
 # encoding: utf-8
-import re
-import zipfile
-import os
-from collections import defaultdict
-import six
-import subprocess
-from six import StringIO
 
-import xlrd
+from collections import defaultdict
+import logging
+import os
+import re
 import magic
 import messytables
+import six
+import subprocess
+import xlrd
+import zipfile
 
-import lib
 from ckan.lib import helpers as ckan_helpers
 
-import logging
+from . import lib
+
 
 log = logging.getLogger(__name__)
+
+
+def read_unknown_encoding(filepath, count, mode='r'):
+    if six.PY2:
+        # Py2 doesn't have the same encoding behaviour as Py3
+        with open(filepath, mode) as f:
+            return f.read(count)
+    for encoding in ['utf-16', 'utf-8', 'iso-8859-1']:
+        try:
+            with open(filepath, mode=mode, encoding=encoding) as f:
+                return f.read(count)
+        except UnicodeError:
+            pass
+    else:
+        log.debug("Unable to recognise char encoding of %s", filepath)
+        return None
 
 
 def sniff_file_format(filepath):
@@ -43,8 +59,7 @@ def sniff_file_format(filepath):
     if mime_type:
         # some operating systems magic mime xml as text/xml
         if mime_type == 'application/xml' or mime_type == 'text/xml':
-            with open(filepath) as f:
-                buf = f.read(5000)
+            buf = read_unknown_encoding(filepath, 5000)
             format_ = get_xml_variant_including_xml_declaration(buf)
         elif mime_type == 'application/zip':
             format_ = get_zipped_format(filepath)
@@ -62,13 +77,12 @@ def sniff_file_format(filepath):
                 # e.g. Shapefile
                 format_ = run_bsd_file(filepath)
             if not format_:
-                with open(filepath) as f:
+                with open(filepath, 'rb') as f:
                     buf = f.read(500)
                 format_ = is_html(buf)
         elif mime_type == 'text/html':
             # Magic can mistake IATI for HTML
-            with open(filepath) as f:
-                buf = f.read(100)
+            buf = read_unknown_encoding(filepath, 100)
             if is_iati(buf):
                 format_ = {'format': 'IATI'}
 
@@ -80,8 +94,7 @@ def sniff_file_format(filepath):
         if not format_:
             if mime_type.startswith('text/'):
                 # is it JSON?
-                with open(filepath, 'rU') as f:
-                    buf = f.read(10000)
+                buf = read_unknown_encoding(filepath, 10000, mode='rtU')
                 if is_json(buf):
                     format_ = {'format': 'JSON'}
                 # is it CSV?
@@ -109,15 +122,14 @@ def sniff_file_format(filepath):
 
         if format_['format'] == 'TXT':
             # is it JSON?
-            with open(filepath, 'rU') as f:
-                buf = f.read(10000)
+            buf = read_unknown_encoding(filepath, 10000, mode='rtU')
             if is_json(buf):
                 format_ = {'format': 'JSON'}
             # is it CSV?
-            elif is_csv(buf):
-                format_ = {'format': 'CSV'}
             elif is_psv(buf):
                 format_ = {'format': 'PSV'}
+            elif is_csv(buf):
+                format_ = {'format': 'CSV'}
             # XML files without the "<?xml ... ?>" tag end up here
             elif is_xml_but_without_declaration(buf):
                 format_ = get_xml_variant_without_xml_declaration(buf)
@@ -126,8 +138,7 @@ def sniff_file_format(filepath):
 
         elif format_['format'] == 'HTML':
             # maybe it has RDFa in it
-            with open(filepath) as f:
-                buf = f.read(100000)
+            buf = read_unknown_encoding(filepath, 100000)
             if has_rdfa(buf):
                 format_ = {'format': 'RDFa'}
     else:
@@ -202,14 +213,14 @@ def is_json(buf):
 
 def is_csv(buf):
     '''If the buffer is a CSV file then return True.'''
-    buf_rows = StringIO(buf)
+    buf_rows = six.BytesIO(six.ensure_binary(buf))
     table_set = messytables.CSVTableSet(buf_rows)
     return _is_spreadsheet(table_set, 'CSV')
 
 
 def is_psv(buf):
     '''If the buffer is a PSV file then return True.'''
-    buf_rows = StringIO(buf)
+    buf_rows = six.BytesIO(six.ensure_binary(buf))
     table_set = messytables.CSVTableSet(buf_rows, delimiter='|')
     return _is_spreadsheet(table_set, 'PSV')
 
@@ -238,8 +249,8 @@ def _is_spreadsheet(table_set, format_):
                                  get_cells_per_row(num_cells, num_rows),
                                  num_cells, num_rows)
                         return True
-    except messytables.ReadError:
-        log.info('Not %s - unable to parse as a table', format_)
+    except messytables.ReadError as e:
+        log.info('Not %s - unable to parse as a table: %s', format_, e)
         return False
     finally:
         pass
@@ -261,7 +272,7 @@ def _is_spreadsheet(table_set, format_):
 def is_html(buf):
     '''If this buffer is HTML, return that format type, else None.'''
     xml_re = r'.{0,3}\s*(<\?xml[^>]*>\s*)?(<!doctype[^>]*>\s*)?<html[^>]*>'
-    match = re.match(xml_re, buf, re.IGNORECASE)
+    match = re.match(xml_re, six.ensure_text(buf), re.IGNORECASE)
     if match:
         log.info('HTML tag detected')
         return {'format': 'HTML'}
@@ -462,7 +473,7 @@ def check_output(*popenargs, **kwargs):
         if cmd is None:
             cmd = popenargs[0]
         raise Exception('Non-zero exit status %s: %s' % (retcode, output))
-    return output
+    return six.text_type(output)
 
 
 def run_bsd_file(filepath):

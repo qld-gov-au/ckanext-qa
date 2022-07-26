@@ -4,32 +4,12 @@ import json
 import logging
 import os
 import re
-import six
 
-from ckan.plugins.toolkit import check_ckan_version, config
-
-from . import tasks
+from ckan.plugins.toolkit import config
 
 log = logging.getLogger(__name__)
 
 _RESOURCE_FORMAT_SCORES = None
-
-
-def compat_enqueue(name, fn, queue, args=[], kwargs={}):
-
-    u'''
-    Enqueue a background job using Celery or RQ.
-    '''
-    try:
-        # Try to use RQ
-        from ckan.plugins.toolkit import enqueue_job
-        nice_name = name + " " + args[1] if (len(args) >= 2) else name
-        enqueue_job(fn, args=args, kwargs=kwargs, queue=queue, title=nice_name)
-    except ImportError:
-        # Fallback to Celery
-        import uuid
-        from ckan.lib.celery_app import celery
-        celery.send_task(name, args=args + [queue], task_id=six.text_type(uuid.uuid4()))
 
 
 def resource_format_scores():
@@ -87,21 +67,3 @@ def munge_format_to_be_canonical(format_name):
     if format_name.startswith('.'):
         format_name = format_name[1:]
     return re.sub('[^a-z/+]', '', format_name)
-
-
-def create_qa_update_package_task(package, queue):
-    compat_enqueue('qa.update_package', tasks.update_package, queue, kwargs={'package_id': package.id})
-    log.debug('QA of package put into celery queue %s: %s',
-              queue, package.name)
-
-
-def create_qa_update_task(resource, queue):
-    if check_ckan_version(max_version='2.2.99'):
-        package = resource.resource_group.package
-    else:
-        package = resource.package
-
-    compat_enqueue('qa.update', tasks.update, queue, kwargs={'resource_id': resource.id})
-
-    log.debug('QA of resource put into celery queue %s: %s/%s url=%r',
-              queue, package.name, resource.id, resource.url)

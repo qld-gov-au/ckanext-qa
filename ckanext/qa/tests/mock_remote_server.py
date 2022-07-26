@@ -8,8 +8,19 @@ from time import sleep
 from wsgiref.simple_server import make_server
 import six
 from six.moves import reduce
+from six.moves.http_client import responses
 from six.moves.urllib.request import urlopen
 import socket
+
+
+def _get_str_params(request):
+    """ Get parameters from the request. If 'str_params' is available,
+    use that, otherwise just use 'params'.
+    """
+    if hasattr(request, 'str_params'):
+        return request.str_params
+    else:
+        return request.params
 
 
 class MockHTTPServer(object):
@@ -85,9 +96,9 @@ class MockHTTPServer(object):
         mod = reduce(getattr, modpath.split('.')[1:], __import__(modpath))
         var = reduce(getattr, var.split('.'), mod)
         try:
-            return var()
+            return six.ensure_binary(var())
         except TypeError:
-            return var
+            return six.ensure_binary(var)
 
 
 class MockEchoTestServer(MockHTTPServer):
@@ -109,40 +120,39 @@ class MockEchoTestServer(MockHTTPServer):
 
     def __call__(self, environ, start_response):
 
-        from httplib import responses
         from webob import Request
         request = Request(environ)
-        status = int(request.str_params.get('status', '200'))
-        if 'content_var' in request.str_params:
-            content = request.str_params.get('content_var')
+        status = int(_get_str_params(request).get('status', '200'))
+        if 'content_var' in _get_str_params(request):
+            content = _get_str_params(request).get('content_var')
             content = self.get_content(content)
-        elif 'content_long' in request.str_params:
+        elif 'content_long' in _get_str_params(request):
             content = '*' * 1000001
         else:
-            content = request.str_params.get('content', '')
-        if 'method' in request.str_params \
-                and request.method.lower() != request.str_params['method'].lower():
+            content = _get_str_params(request).get('content', '')
+        if 'method' in _get_str_params(request) \
+                and request.method.lower() != _get_str_params(request)['method'].lower():
             content = ''
             status = 405
 
-        if isinstance(content, six.text_type):
-            raise TypeError("Expected raw byte string for content")
-
         headers = [
             item
-            for item in request.str_params.items()
+            for item in _get_str_params(request).items()
             if item[0] not in ('content', 'status')
         ]
-        if 'length' in request.str_params:
-            cl = request.str_params.get('length')
+        if 'length' in _get_str_params(request):
+            cl = _get_str_params(request).get('length')
             headers += [('Content-Length', cl)]
-        elif content and 'no-content-length' not in request.str_params:
-            headers += [('Content-Length', six.binary_type(len(content)))]
+        elif content and 'no-content-length' not in _get_str_params(request):
+            # Python 2 with old WebOb wants bytes,
+            # Python 3 with new WebOb wants text,
+            # so both want 'str'
+            headers += [('Content-Length', str(len(content)))]
         start_response(
             '%d %s' % (status, responses[status]),
             headers
         )
-        return [content]
+        return [six.ensure_binary(content)]
 
 
 class MockTimeoutTestServer(MockHTTPServer):
