@@ -6,11 +6,11 @@ import ckan.model as model
 import ckan.plugins as p
 
 from ckanext.archiver.interfaces import IPipe
-from ckanext.qa import helpers, lib
-from ckanext.qa.logic import action, auth
-from ckanext.qa.model import QA, aggregate_qa_for_a_dataset
 from ckanext.report.interfaces import IReport
 from ckan.lib.plugins import DefaultTranslation
+from . import helpers, tasks
+from .logic import action, auth
+from .model import QA, aggregate_qa_for_a_dataset
 
 log = logging.getLogger(__name__)
 
@@ -48,7 +48,7 @@ class QAPlugin(MixinPlugin, p.SingletonPlugin, p.toolkit.DefaultDatasetForm, Def
         dataset = model.Package.get(dataset_id)
         assert dataset
 
-        lib.create_qa_update_package_task(dataset, queue=queue)
+        tasks.create_qa_update_package_task(dataset, queue=queue)
 
     # IReport
 
