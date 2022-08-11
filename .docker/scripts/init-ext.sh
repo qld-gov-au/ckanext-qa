@@ -11,8 +11,8 @@ pip install -r "dev-requirements.txt"
 if [ "$CKAN_VERSION" = "ckan-2.8.8" ]; then
     pip install -r "dev-requirements-2.8.txt"
 fi
-if [ "$PYTHON_VERSION" = "py2" ]; then
-    pip install -r "requirements-py2.txt"
+if [ -f "requirements-$PYTHON_VERSION.txt" ]; then
+    pip install -r "requirements-$PYTHON_VERSION.txt"
 else
     pip install -r "requirements.txt"
 fi
