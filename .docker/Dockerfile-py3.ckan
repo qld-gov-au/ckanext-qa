@@ -1,6 +1,6 @@
 FROM amazeeio/python:3.8-22.7.0
 
-ARG SITE_URL=http://ckan:3000/
+ARG SITE_URL=http://ckan:5000/
 ARG CKAN_REPO=ckan/ckan
 ARG CKAN_VERSION=ckan-2.9.5
 ENV PYTHON_VERSION=py3

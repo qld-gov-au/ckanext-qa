@@ -39,10 +39,10 @@ main() {
   fi
 
   if [ "${DOCTOR_CHECK_PORT}" == "1" ]; then
-    if ! lsof -i :3000 | grep LISTEN | grep -q om.docke; then
-      error "Port 3000 is occupied by a service other than Docker. Stop this service and run 'pygmy up'"
+    if ! lsof -i :5000 | grep LISTEN | grep -q om.docke; then
+      error "Port 5000 is occupied by a service other than Docker. Stop this service and run 'pygmy up'"
     fi
-    success "Port 3000 is available"
+    success "Port 5000 is available"
   fi
 
   if [ "${DOCTOR_CHECK_PYGMY}" == "1" ]; then
@@ -113,7 +113,7 @@ main() {
 
 
   if [ "${DOCTOR_CHECK_WEBSERVER}" == "1" ]; then
-    host_app_port="$(docker port $(docker-compose ps -q ckan) 3000 | cut -d : -f 2)"
+    host_app_port="$(docker port $(docker-compose ps -q ckan) 5000 | cut -d : -f 2)"
     if ! curl -L -s -o /dev/null -w "%{http_code}" "${LAGOON_LOCALDEV_URL}:${host_app_port}" | grep -q 200; then
       error "Web server is not accessible at ${LAGOON_LOCALDEV_URL}:${host_app_port}"
       exit 1
@@ -122,7 +122,7 @@ main() {
   fi
 
   if [ "${DOCTOR_CHECK_BOOTSTRAP}" == "1" ]; then
-    host_app_port="$(docker port $(docker-compose ps -q ckan) 3000 | cut -d : -f 2)"
+    host_app_port="$(docker port $(docker-compose ps -q ckan) 5000 | cut -d : -f 2)"
     if ! curl -L -s -N "${LAGOON_LOCALDEV_URL}:${host_app_port}" | grep -q -i "meta name=\"generator\" content=\"ckan"; then
       error "Website is running, but cannot be bootstrapped. Try pulling latest container images with 'ahoy pull'"
       exit 1
