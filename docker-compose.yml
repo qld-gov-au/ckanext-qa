@@ -23,7 +23,6 @@ services:
       context: .
       dockerfile: .docker/Dockerfile-${PYTHON_VERSION}.ckan
       args:
-        SITE_URL: "http://${PROJECT}.docker.amazee.io"
         CKAN_REPO:
         CKAN_VERSION:
     depends_on:

@@ -15,8 +15,8 @@ if [ -f "requirements-$PYTHON_VERSION.txt" ]; then
 else
     pip install -r "requirements.txt"
 fi
-pip install -r "${VENV_DIR}/src/ckanext-archiver/requirements.txt"
-python setup.py develop
+pip install -r "${SRC_DIR}/ckanext-archiver/requirements.txt"
+pip install -e .
 installed_name=$(grep '^\s*name=' setup.py |sed "s|[^']*'\([-a-zA-Z0-9]*\)'.*|\1|")
 
 # Validate that the extension was installed correctly.
