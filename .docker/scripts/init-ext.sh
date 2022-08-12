@@ -4,9 +4,8 @@
 #
 set -e
 
-if [ "$VENV_DIR" != "" ]; then
-  . ${VENV_DIR}/bin/activate
-fi
+. ${APP_DIR}/scripts/activate
+
 pip install -r "dev-requirements.txt"
 if [ "$CKAN_VERSION" = "ckan-2.8.8" ]; then
     pip install -r "dev-requirements-2.8.txt"
@@ -23,6 +22,4 @@ installed_name=$(grep '^\s*name=' setup.py |sed "s|[^']*'\([-a-zA-Z0-9]*\)'.*|\1
 # Validate that the extension was installed correctly.
 if ! pip list | grep "$installed_name" > /dev/null; then echo "Unable to find the extension in the list"; exit 1; fi
 
-if [ "$VENV_DIR" != "" ]; then
-  deactivate
-fi
+. ${APP_DIR}/scripts/deactivate

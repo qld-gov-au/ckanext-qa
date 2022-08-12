@@ -70,7 +70,7 @@ commands:
 
   cli:
     usage: Start a shell inside CLI container or run a command.
-    cmd: if \[ "${#}" -ne 0 \]; then docker exec $(docker-compose ps -q ckan) sh -c '. ${VENV_DIR}/bin/activate; cd $APP_DIR;'" $*"; else docker exec $(docker-compose ps -q ckan) sh -c '. ${VENV_DIR}/bin/activate && cd $APP_DIR && sh'; fi
+    cmd: if \[ "${#}" -ne 0 \]; then docker exec $(docker-compose ps -q ckan) sh -c '. ${APP_DIR}/scripts/activate; cd $APP_DIR;'" $*"; else docker exec $(docker-compose ps -q ckan) sh -c '. ${APP_DIR}/scripts/activate && cd $APP_DIR && sh'; fi
 
   doctor:
     usage: Find problems with current project setup.

@@ -9,9 +9,7 @@ CKAN_DISPLAY_NAME="${CKAN_DISPLAY_NAME:-Administrator}"
 CKAN_USER_EMAIL="${CKAN_USER_EMAIL:-admin@localhost}"
 CKAN_ACTION_URL=http://ckan:5000/api/action
 
-if [ "$VENV_DIR" != "" ]; then
-  . ${VENV_DIR}/bin/activate
-fi
+. ${APP_DIR}/scripts/activate
 
 add_user_if_needed () {
     echo "Adding user '$2' ($1) with email address [$3]"
@@ -88,6 +86,4 @@ package_owner_org_update=$( \
 )
 echo ${package_owner_org_update}
 
-if [ "$VENV_DIR" != "" ]; then
-  deactivate
-fi
+. ${APP_DIR}/scripts/deactivate
