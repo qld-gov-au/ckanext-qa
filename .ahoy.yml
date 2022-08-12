@@ -119,7 +119,7 @@ commands:
   test-unit:
     usage: Run unit tests.
     cmd: |
-      ahoy cli 'pytest --ckan-ini=${CKAN_INI}' || \
+      ahoy cli 'pytest --ckan-ini=${CKAN_INI} $APP_DIR/ckanext' || \
       [ "${ALLOW_UNIT_FAIL:-0}" -eq 1 ]
 
   test-bdd:
