@@ -4,7 +4,7 @@
 #
 set -e
 
-if (which python3); then
+if [ "$PYTHON_VERSION" = "py3" ]; then
     PYTHON=python3
 else
     PYTHON=python
