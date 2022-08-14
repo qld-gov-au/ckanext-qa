@@ -7,9 +7,6 @@ set -e
 . ${APP_DIR}/scripts/activate
 
 pip install -r "dev-requirements.txt"
-if [ "$CKAN_VERSION" = "ckan-2.8.8" ]; then
-    pip install -r "dev-requirements-2.8.txt"
-fi
 if [ -f "requirements-$PYTHON_VERSION.txt" ]; then
     pip install -r "requirements-$PYTHON_VERSION.txt"
 else

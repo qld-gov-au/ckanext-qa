@@ -21,10 +21,7 @@ services:
   ckan:
     build:
       context: .
-      dockerfile: .docker/Dockerfile-${PYTHON_VERSION}.ckan
-      args:
-        CKAN_REPO:
-        CKAN_VERSION:
+      dockerfile: .docker/Dockerfile.ckan
     depends_on:
       - postgres
       - solr

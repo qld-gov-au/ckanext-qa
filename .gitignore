@@ -75,3 +75,6 @@ ckan
 ckanext-archiver
 ckanext-report/
 .noseids
+
+# generated from template
+Dockerfile.ckan

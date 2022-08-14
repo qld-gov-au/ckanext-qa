@@ -1,7 +1,7 @@
-FROM openknowledge/ckan-dev:2.8
+FROM openknowledge/ckan-dev:@CKAN_VERSION@
 
 ARG SITE_URL=http://ckan:5000/
-ENV PYTHON_VERSION=py2
+ENV PYTHON_VERSION=@PYTHON_VERSION@
 ENV CKAN_SITE_URL="${SITE_URL}"
 
 WORKDIR "${APP_DIR}"
