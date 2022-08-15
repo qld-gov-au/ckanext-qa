@@ -12,7 +12,7 @@ fi
 CKAN_USER_NAME="${CKAN_USER_NAME:-admin}"
 CKAN_DISPLAY_NAME="${CKAN_DISPLAY_NAME:-Administrator}"
 CKAN_USER_EMAIL="${CKAN_USER_EMAIL:-admin@localhost}"
-CKAN_ACTION_URL=http://ckan:5000/api/action
+CKAN_ACTION_URL=${CKAN_SITE_URL}api/action
 
 . ${APP_DIR}/scripts/activate
 

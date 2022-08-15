@@ -39,7 +39,7 @@ services:
       AMAZEEIO_URL: "${PROJECT}.docker.amazee.io"
 
   postgres:
-    image: openknowledge/ckan-postgres-dev:${CKAN_VERSION}
+    image: ckan/ckan-postgres-dev:${CKAN_VERSION}
     ports:
       - "5432"
     networks:
