@@ -4,25 +4,19 @@
 #
 set -e
 
-if [ "$VENV_DIR" != "" ]; then
-  . ${VENV_DIR}/bin/activate
-fi
+. ${APP_DIR}/scripts/activate
+
 pip install -r "dev-requirements.txt"
-if [ "$CKAN_VERSION" = "ckan-2.8.8" ]; then
-    pip install -r "dev-requirements-2.8.txt"
-fi
-if [ "$PYTHON_VERSION" = "py2" ]; then
-    pip install -r "requirements-py2.txt"
+if [ -f "requirements-$PYTHON_VERSION.txt" ]; then
+    pip install -r "requirements-$PYTHON_VERSION.txt"
 else
     pip install -r "requirements.txt"
 fi
-pip install -r "${VENV_DIR}/src/ckanext-archiver/requirements.txt"
-python setup.py develop
+pip install -r "${SRC_DIR}/ckanext-archiver/requirements.txt"
+pip install -e .
 installed_name=$(grep '^\s*name=' setup.py |sed "s|[^']*'\([-a-zA-Z0-9]*\)'.*|\1|")
 
 # Validate that the extension was installed correctly.
 if ! pip list | grep "$installed_name" > /dev/null; then echo "Unable to find the extension in the list"; exit 1; fi
 
-if [ "$VENV_DIR" != "" ]; then
-  deactivate
-fi
+. ${APP_DIR}/scripts/deactivate
