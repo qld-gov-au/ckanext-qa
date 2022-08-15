@@ -92,7 +92,7 @@ def sniff_file_format(filepath):
                 format_ = {'format': format_tuple[1]}
 
         if not format_:
-            if mime_type.startswith('text/'):
+            if mime_type.startswith('text/') or mime_type == 'application/csv':
                 # is it JSON?
                 buf = read_unknown_encoding(filepath, 10000, mode='rtU')
                 if is_json(buf):
