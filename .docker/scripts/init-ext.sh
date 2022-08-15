@@ -4,15 +4,33 @@
 #
 set -e
 
+install_requirements () {
+    PROJECT_DIR=$1
+    shift
+    # Identify the best match requirements file, ignore the others.
+    # If there is one specific to our Python version, use that.
+    for filename_pattern in "$@"; do
+        filename="$PROJECT_DIR/${filename_pattern}-$PYTHON_VERSION.txt"
+        if [ -f "$filename" ]; then
+            pip install -r "$filename"
+            return 0
+        fi
+    done
+    for filename_pattern in "$@"; do
+        filename="$PROJECT_DIR/$filename_pattern.txt"
+        if [ -f "$filename" ]; then
+            pip install -r "$filename"
+            return 0
+        fi
+    done
+}
+
 . ${APP_DIR}/scripts/activate
 
-pip install -r "dev-requirements.txt"
-if [ -f "requirements-$PYTHON_VERSION.txt" ]; then
-    pip install -r "requirements-$PYTHON_VERSION.txt"
-else
-    pip install -r "requirements.txt"
-fi
-pip install -r "${SRC_DIR}/ckanext-archiver/requirements.txt"
+install_requirements . dev-requirements requirements-dev
+for extension in . `ls -d $SRC_DIR/ckanext-*`; do
+    install_requirements $extension requirements pip-requirements
+done
 pip install -e .
 installed_name=$(grep '^\s*name=' setup.py |sed "s|[^']*'\([-a-zA-Z0-9]*\)'.*|\1|")
 
