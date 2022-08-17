@@ -165,6 +165,18 @@ If you get error "MagicException: None" then it may be due to libmagic needing a
     sudo apt-get install libmagic1
 
 
+Scenario tests
+-----
+
+- Make sure that you have latest versions of all required software installed:
+  - [Docker](https://www.docker.com/)
+  - [Pygmy](https://pygmy.readthedocs.io/)
+  - [Ahoy](https://github.com/ahoy-cli/ahoy)
+
+- Build the test container: `.circleci/build.sh`
+
+- Run tests: `.circleci/test.sh`
+
 Translations
 ------
 
