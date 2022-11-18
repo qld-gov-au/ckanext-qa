@@ -12,3 +12,4 @@ splinter>=0.13.0,<0.17
 
 -e git+https://github.com/qld-gov-au/ckanext-report.git@develop#egg=ckanext-report
 -e git+https://github.com/qld-gov-au/ckanext-archiver.git@develop#egg=ckanext-archiver
+setuptools>=65.5.1 # not directly required, pinned by Snyk to avoid a vulnerability
