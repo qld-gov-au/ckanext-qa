@@ -1,0 +1,4 @@
+<!-- Freemarker syntax in a file with .txt extension -->
+
+<#assign foo = 'baz'>
+

@@ -167,6 +167,9 @@ class TestSniffFormat:
     def test_txt_2(self):
         self.check_format('txt', 'terrible_csv.txt')
 
+    def test_xml_adjacent_txt(self):
+        self.check_format('txt', 'freemarker.txt')
+
     def test_csv_zip(self):
         self.check_format('csv.zip', 'written_complains.csv.zip')
 
