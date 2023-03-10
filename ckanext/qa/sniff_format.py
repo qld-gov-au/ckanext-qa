@@ -323,6 +323,7 @@ def get_xml_variant_without_xml_declaration(buf):
     # couldn't see how to give it a string, so used StringIO which failed
     # for some files curiously.
     from xml.parsers import expat
+    from xml.sax import SAXException
 
     class GotFirstTag(Exception):
         pass
@@ -335,7 +336,7 @@ def get_xml_variant_without_xml_declaration(buf):
         p.Parse(buf)
     except GotFirstTag as e:
         top_level_tag_name = six.text_type(e).lower()
-    except (xml.sax.SAXException, expat.ExpatError) as e:
+    except (SAXException, expat.ExpatError) as e:
         log.info('Sax parse error: %s %s', e, buf)
         return {'format': 'XML'}
 
