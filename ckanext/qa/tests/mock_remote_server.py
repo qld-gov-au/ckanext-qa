@@ -106,7 +106,7 @@ class MockEchoTestServer(MockHTTPServer):
         a 500 error response: 'http://localhost/?status=500'
 
         a 200 OK response, returning the function's docstring:
-        'http://localhost/?status=200;content-type=text/plain;content_var
+        'http://localhost/?status=200&content-type=text/plain&content_var
         =ckan.tests.lib.test_package_search:test_wsgi_app.__doc__'
 
     To specify content, use:
