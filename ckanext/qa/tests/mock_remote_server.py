@@ -17,10 +17,7 @@ def _get_str_params(request):
     """ Get parameters from the request. If 'str_params' is available,
     use that, otherwise just use 'params'.
     """
-    if hasattr(request, 'str_params'):
-        return request.str_params
-    else:
-        return request.params
+    return request.values
 
 
 class MockHTTPServer(object):
@@ -120,7 +117,7 @@ class MockEchoTestServer(MockHTTPServer):
 
     def __call__(self, environ, start_response):
 
-        from webob import Request
+        from flask import Request
         request = Request(environ)
         status = int(_get_str_params(request).get('status', '200'))
         if 'content_var' in _get_str_params(request):
