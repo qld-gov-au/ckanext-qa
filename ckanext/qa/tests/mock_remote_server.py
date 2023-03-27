@@ -133,12 +133,12 @@ class MockEchoTestServer(MockHTTPServer):
             status = 405
 
         headers = [
-            item
+            (str(item[0]), str(item[1]))
             for item in _get_str_params(request).items()
             if item[0] not in ('content', 'status')
         ]
         if 'length' in _get_str_params(request):
-            cl = _get_str_params(request).get('length')
+            cl = str(_get_str_params(request).get('length'))
             headers += [('Content-Length', cl)]
         elif content and 'no-content-length' not in _get_str_params(request):
             # Python 2 with old WebOb wants bytes,
