@@ -9,11 +9,8 @@ WORKDIR "${APP_DIR}"
 
 ENV DOCKERIZE_VERSION v0.6.1
 RUN apk add --no-cache build-base \
-    && curl -sLO https://github.com/jwilder/dockerize/releases/download/${DOCKERIZE_VERSION}/dockerize-alpine-linux-amd64-${DOCKERIZE_VERSION}.tar.gz \
-    && tar -C /usr/local/bin -xzvf dockerize-alpine-linux-amd64-${DOCKERIZE_VERSION}.tar.gz \
-    && rm dockerize-alpine-linux-amd64-${DOCKERIZE_VERSION}.tar.gz
-
-# Install CKAN.
+    && curl -sL https://github.com/jwilder/dockerize/releases/download/${DOCKERIZE_VERSION}/dockerize-alpine-linux-amd64-${DOCKERIZE_VERSION}.tar.gz \
+        | tar -C /usr/local/bin -xzvf -
 
 COPY .docker/test.ini $CKAN_INI
 

@@ -72,12 +72,12 @@ class TestLinkChecker():
         result = self.check_link(url)
         assert_equal(result['format'], '')
 
-    @with_mock_url('?status=200;content-type=text/plain')
+    @with_mock_url('?status=200&content-type=text/plain')
     def test_format_by_mimetype_txt(self, url=None):
         result = self.check_link(url)
         assert_equal(result['format'], 'TXT')
 
-    @with_mock_url('?status=200;content-type=text/csv')
+    @with_mock_url('?status=200&content-type=text/csv')
     def test_format_by_mimetype_csv(self, url=None):
         result = self.check_link(url)
         assert_equal(result['format'], 'CSV')
