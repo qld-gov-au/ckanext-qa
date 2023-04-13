@@ -5,6 +5,14 @@ from behaving.web.steps.url import when_i_visit_url
 import uuid
 
 
+# Monkey-patch Selenium 3 to handle Python 3.9
+import base64
+try:
+    from base64 import encodestring
+except Exception:
+    base64.encodestring = base64.encodebytes
+
+
 @step(u'I go to homepage')
 def go_to_home(context):
     when_i_visit_url(context, '/')
@@ -92,6 +100,7 @@ def create_dataset(context, license, file_format, file):
         And I fill in "author_email" with "test@me.com"
         And I execute the script "document.getElementById('field-license').value={license}"
         Then I press "Add Data"
+        And I execute the script "button = document.getElementById('resource-upload-button'); if (button) button.click();"
         And I attach the file {file} to "upload"
         And I fill in "name" with "Test Resource"
         And I execute the script "document.getElementById('field-format').value={file_format}"
