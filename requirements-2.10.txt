@@ -1,0 +1,7 @@
+xlrd==1.2.0
+frictionless==4.40.11
+progressbar==2.5
+six>=1.12.0 #in ckancore
+
+ckanext-archiver
+ckanext-report

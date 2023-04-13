@@ -10,7 +10,7 @@ import subprocess
 import xlrd
 import zipfile
 
-from ckan.lib import helpers as ckan_helpers
+from ckan.plugins import toolkit
 
 from . import lib
 
@@ -86,7 +86,7 @@ def sniff_file_format(filepath):
                 format_ = {'format': 'IATI'}
 
         if not format_:
-            format_tuple = ckan_helpers.resource_formats().get(mime_type)
+            format_tuple = toolkit.h.resource_formats().get(mime_type)
             if format_tuple:
                 format_ = {'format': format_tuple[1]}
 
@@ -218,10 +218,11 @@ def is_psv(buf):
     return _is_spreadsheet(buf, 'PSV', '|')
 
 
-def _messytables_extract_row_lengths(buf_rows, format_, delimiter=None):
-    # Return a list containing the count of cells in each row
-    log.debug("Sniffing for %s format with delimiter %s", format_, delimiter)
+def _messytables_extract_row_lengths(buf, format_, delimiter=None):
+    # Return a list containing the count of cells in each row,
+    # using messytables.CSVTableSet
     import messytables
+    buf_rows = six.BytesIO(six.ensure_binary(buf))
     if delimiter:
         table_set = messytables.CSVTableSet(buf_rows, delimiter=delimiter)
     else:
@@ -241,9 +242,30 @@ def _messytables_extract_row_lengths(buf_rows, format_, delimiter=None):
         return None
 
 
+def _frictionless_extract_row_lengths(buf, format_, delimiter=None):
+    # Return a list containing the count of cells in each row,
+    # using frictionless.Resource
+    import frictionless
+    resource_kwargs = {"format": "csv"}
+    row_lengths = []
+    if delimiter:
+        dialect = frictionless.Dialect(descriptor={"delimiter": delimiter})
+        resource_kwargs['dialect'] = dialect
+    try:
+        table = frictionless.Resource(six.ensure_binary(buf), **resource_kwargs)
+        for row in table:
+            row_lengths.append(len(row))
+        return row_lengths
+    except frictionless.exception.FrictionlessException as e:
+        log.info('Not %s - unable to parse as a table: %s', format_, e)
+        return None
+
+
 def _is_spreadsheet(buf, format_, delimiter=None):
-    buf_rows = six.BytesIO(six.ensure_binary(buf))
-    row_lengths = _messytables_extract_row_lengths(buf_rows, format_, delimiter)
+    if toolkit.check_ckan_version('2.10'):
+        row_lengths = _frictionless_extract_row_lengths(buf, format_, delimiter)
+    else:
+        row_lengths = _messytables_extract_row_lengths(buf, format_, delimiter)
     if not row_lengths:
         return False
 
@@ -365,7 +387,7 @@ def get_xml_variant_without_xml_declaration(buf):
     if top_level_tag_name.lower() in ('coveragedescriptions', 'capabilities') and \
             'xmlns="http://www.opengis.net/wcs/' in buf:
         top_level_tag_name = 'wcs'
-    format_tuple = ckan_helpers.resource_formats().get(top_level_tag_name)
+    format_tuple = toolkit.h.resource_formats().get(top_level_tag_name)
     if format_tuple:
         format_ = {'format': format_tuple[1]}
         log.info('XML variant detected: %s', format_tuple[2])
@@ -436,7 +458,7 @@ def get_zipped_format(filepath):
     top_scoring_extension_counts = defaultdict(int)  # extension: number_of_files
     for filepath in filepaths:
         extension = os.path.splitext(filepath)[-1][1:].lower()
-        format_tuple = ckan_helpers.resource_formats().get(extension)
+        format_tuple = toolkit.h.resource_formats().get(extension)
         if format_tuple:
             score = lib.resource_format_scores().get(format_tuple[1])
             if score is not None and score > top_score:
@@ -456,7 +478,7 @@ def get_zipped_format(filepath):
     top_extension = top_scoring_extension_counts[-1][0]
     log.info('Zip file\'s most popular extension is "%s" (All extensions: %r)',
              top_extension, top_scoring_extension_counts)
-    format_tuple = ckan_helpers.resource_formats()[top_extension]
+    format_tuple = toolkit.h.resource_formats()[top_extension]
     format_ = {'format': format_tuple[1],
                'container': 'ZIP'}
     log.info('Zipped file format detected: %s', format_tuple[2])
@@ -505,7 +527,7 @@ def run_bsd_file(filepath):
                       }
         if app_name in format_map:
             extension = format_map[app_name]
-            format_tuple = ckan_helpers.resource_formats()[extension]
+            format_tuple = toolkit.h.resource_formats()[extension]
             log.info('"file" detected file format: %s',
                      format_tuple[2])
             return {'format': format_tuple[1]}
