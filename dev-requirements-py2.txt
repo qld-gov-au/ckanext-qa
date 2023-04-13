@@ -1,0 +1,14 @@
+behave==1.2.6
+behaving==2.0.0
+Appium-Python-Client<=0.52
+ckanapi==4.3
+ckantoolkit>=0.0.4
+factory-boy
+flake8==3.8.3
+flask
+mock
+pytest-ckan
+splinter>=0.13.0,<0.17
+
+-e git+https://github.com/qld-gov-au/ckanext-report.git@develop#egg=ckanext-report
+-e git+https://github.com/qld-gov-au/ckanext-archiver.git@develop#egg=ckanext-archiver
