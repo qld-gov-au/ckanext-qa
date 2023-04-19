@@ -407,7 +407,7 @@ def _download_url(url):
     tmp_file = get_tmp_file(url)
     length = 0
     try:
-        headers = {}
+        headers = {'Authorization': lib.get_job_apitoken()}
         response = get_response(url, headers)
 
         # download the file to a tempfile on disk
@@ -450,6 +450,7 @@ def _download_url(url):
 
 def get_response(url, headers):
     def get_url():
+        headers['Authorization'] = lib.get_job_apitoken()
         kwargs = {'headers': headers, 'timeout': DOWNLOAD_TIMEOUT,
                   'verify': SSL_VERIFY, 'stream': True}  # just gets the headers for now
         if 'ckan.download_proxy' in config:

@@ -5,7 +5,7 @@ import logging
 import os
 import re
 
-from ckan.plugins.toolkit import config
+from ckan.plugins.toolkit import config, get_action
 
 log = logging.getLogger(__name__)
 
@@ -67,3 +67,18 @@ def munge_format_to_be_canonical(format_name):
     if format_name.startswith('.'):
         format_name = format_name[1:]
     return re.sub('[^a-z/+]', '', format_name)
+
+
+def get_job_apitoken():
+    """ Returns the API Token for authentication.
+
+    Job actions require an authenticated user to perform the actions. This
+    method returns the api_token set in the config file and defaults to the
+    site_user.
+    """
+    api_token = config.get('ckan.qa.api_token', None)
+    if api_token:
+        return api_token
+
+    site_user = get_action('get_site_user')({'ignore_auth': True}, {})
+    return site_user["apikey"]
