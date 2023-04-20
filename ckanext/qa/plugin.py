@@ -86,6 +86,9 @@ class QAPlugin(MixinPlugin, p.SingletonPlugin, p.toolkit.DefaultDatasetForm, Def
     # IPackageController
 
     def after_show(self, context, pkg_dict):
+        return self.after_dataset_show(context, pkg_dict)
+
+    def after_dataset_show(self, context, pkg_dict):
         # Insert the qa info into the package_dict so that it is
         # available on the API.
         # When you edit the dataset, these values will not show in the form,
