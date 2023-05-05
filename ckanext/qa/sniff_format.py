@@ -290,7 +290,7 @@ def _is_spreadsheet(buf, format_, delimiter=None):
 
     cells_per_row = get_cells_per_row(num_cells, num_rows)
     # if file is short then be more lenient
-    if num_cells <= 3 or num_rows <= 1:
+    if num_cells <= 5 or num_rows <= 2:
         if cells_per_row > 1.5:
             log.info('Is %s because %.1f cells per row (%i cells, %i rows)',
                      format_,
