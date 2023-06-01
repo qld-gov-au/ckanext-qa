@@ -1,12 +1,20 @@
+# encoding: utf-8
+
 import copy
+
 from ckan.plugins import toolkit as tk
+
+from ckanext.qa.model import QA
 
 
 def qa_openness_stars_resource_html(resource):
     print('-----> resource', resource)
-    qa = resource.get('qa')
+    qa = resource.get('qa') or QA.get_for_resource(resource.get('id'))
     if not qa:
         return tk.literal('<!-- No qa info for this resource -->')
+
+    if isinstance(qa, QA):
+        qa = qa.as_dict()
     if not isinstance(qa, dict):
         return tk.literal('<!-- QA info was of the wrong type -->')
 
