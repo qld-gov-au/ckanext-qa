@@ -68,22 +68,4 @@ curl -LsH "Authorization: ${API_KEY}" \
 # END.
 #
 
-# Creating test data hierarchy which creates organisations assigned to datasets
-ckan_cli create-test-data hierarchy
-
-# Creating basic test data which has datasets with resources
-ckan_cli create-test-data basic
-
-# Datasets need to be assigned to an organisation
-
-echo "Assigning test Datasets to Organisation..."
-
-echo "Updating annakarenina to use 'Department of Health' organisation:"
-package_owner_org_update=$( \
-    curl -LsH "Authorization: ${API_KEY}" \
-    --data "id=annakarenina&organization_id=department-of-health" \
-    ${CKAN_ACTION_URL}/package_owner_org_update
-)
-echo ${package_owner_org_update}
-
 . ${APP_DIR}/scripts/deactivate

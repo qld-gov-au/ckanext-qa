@@ -47,21 +47,6 @@ PERSONAS = {
         'email': u'test_org_member@localhost',
         'password': u'Password123!'
     },
-    'DataRequestOrgAdmin': {
-        'name': u'dr_admin',
-        'email': u'dr_admin@localhost',
-        'password': u'Password123!'
-    },
-    'DataRequestOrgEditor': {
-        'name': u'dr_editor',
-        'email': u'dr_editor@localhost',
-        'password': u'Password123!'
-    },
-    'DataRequestOrgMember': {
-        'name': u'dr_member',
-        'email': u'dr_member@localhost',
-        'password': u'Password123!'
-    }
 }
 
 

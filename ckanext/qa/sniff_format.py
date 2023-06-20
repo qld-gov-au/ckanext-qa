@@ -5,13 +5,12 @@ import logging
 import os
 import re
 import magic
-import messytables
 import six
 import subprocess
 import xlrd
 import zipfile
 
-from ckan.lib import helpers as ckan_helpers
+from ckan.plugins import toolkit
 
 from . import lib
 
@@ -87,7 +86,7 @@ def sniff_file_format(filepath):
                 format_ = {'format': 'IATI'}
 
         if not format_:
-            format_tuple = ckan_helpers.resource_formats().get(mime_type)
+            format_tuple = toolkit.h.resource_formats().get(mime_type)
             if format_tuple:
                 format_ = {'format': format_tuple[1]}
 
@@ -212,51 +211,86 @@ def is_json(buf):
 
 
 def is_csv(buf):
-    '''If the buffer is a CSV file then return True.'''
-    buf_rows = six.BytesIO(six.ensure_binary(buf))
-    table_set = messytables.CSVTableSet(buf_rows)
-    return _is_spreadsheet(table_set, 'CSV')
+    return _is_spreadsheet(buf, 'CSV')
 
 
 def is_psv(buf):
-    '''If the buffer is a PSV file then return True.'''
+    return _is_spreadsheet(buf, 'PSV', '|')
+
+
+def _messytables_extract_row_lengths(buf, format_, delimiter=None):
+    # Return a list containing the count of cells in each row,
+    # using messytables.CSVTableSet
+    import messytables
     buf_rows = six.BytesIO(six.ensure_binary(buf))
-    table_set = messytables.CSVTableSet(buf_rows, delimiter='|')
-    return _is_spreadsheet(table_set, 'PSV')
-
-
-def _is_spreadsheet(table_set, format_):
-    def get_cells_per_row(num_cells, num_rows):
-        if not num_rows:
-            return 0
-        return float(num_cells) / float(num_rows)
-    num_cells = num_rows = 0
+    if delimiter:
+        table_set = messytables.CSVTableSet(buf_rows, delimiter=delimiter)
+    else:
+        table_set = messytables.CSVTableSet(buf_rows)
     try:
         table = table_set.tables[0]
+        row_lengths = []
         # Iterate through the table.sample (sample because otherwise
         # it will barf if there is an unclosed string at the end)
         for row in table.sample:
             if row:
                 # Must have enough cells
-                num_cells += len(row)
-                num_rows += 1
-                if num_cells > 20 or num_rows > 10:
-                    cells_per_row = get_cells_per_row(num_cells, num_rows)
-                    # over the long term, 2 columns is the minimum
-                    if cells_per_row > 1.9:
-                        log.info('Is %s because %.1f cells per row (%i cells, %i rows)',
-                                 format_,
-                                 get_cells_per_row(num_cells, num_rows),
-                                 num_cells, num_rows)
-                        return True
+                row_lengths.append(len(row))
+        return row_lengths
     except messytables.ReadError as e:
         log.info('Not %s - unable to parse as a table: %s', format_, e)
+        return None
+
+
+def _frictionless_extract_row_lengths(buf, format_, delimiter=None):
+    # Return a list containing the count of cells in each row,
+    # using frictionless.Resource
+    import frictionless
+    resource_kwargs = {"format": "csv"}
+    row_lengths = []
+    if delimiter:
+        dialect = frictionless.Dialect(descriptor={"delimiter": delimiter})
+        resource_kwargs['dialect'] = dialect
+    try:
+        table = frictionless.Resource(six.ensure_binary(buf), **resource_kwargs)
+        for row in table:
+            row_lengths.append(len(row))
+        return row_lengths
+    except frictionless.exception.FrictionlessException as e:
+        log.info('Not %s - unable to parse as a table: %s', format_, e)
+        return None
+
+
+def _is_spreadsheet(buf, format_, delimiter=None):
+    if toolkit.check_ckan_version('2.10'):
+        row_lengths = _frictionless_extract_row_lengths(buf, format_, delimiter)
+    else:
+        row_lengths = _messytables_extract_row_lengths(buf, format_, delimiter)
+    if not row_lengths:
         return False
-    finally:
-        pass
+
+    def get_cells_per_row(num_cells, num_rows):
+        if not num_rows:
+            return 0
+        return float(num_cells) / float(num_rows)
+    num_cells = num_rows = 0
+    for row in row_lengths:
+        # Must have enough cells
+        num_cells += row
+        num_rows += 1
+        if num_cells > 20 or num_rows > 10:
+            cells_per_row = get_cells_per_row(num_cells, num_rows)
+            # over the long term, 2 columns is the minimum
+            if cells_per_row > 1.9:
+                log.info('Is %s because %.1f cells per row (%i cells, %i rows)',
+                         format_,
+                         get_cells_per_row(num_cells, num_rows),
+                         num_cells, num_rows)
+                return True
+
+    cells_per_row = get_cells_per_row(num_cells, num_rows)
     # if file is short then be more lenient
-    if num_cells > 3 or num_rows > 1:
-        cells_per_row = get_cells_per_row(num_cells, num_rows)
+    if num_cells <= 5 or num_rows <= 2:
         if cells_per_row > 1.5:
             log.info('Is %s because %.1f cells per row (%i cells, %i rows)',
                      format_,
@@ -265,7 +299,7 @@ def _is_spreadsheet(table_set, format_):
             return True
     log.info('Not %s - not enough valid cells per row '
              '(%i cells, %i rows, %.1f cells per row)',
-             format_, num_cells, num_rows, get_cells_per_row(num_cells, num_rows))
+             format_, num_cells, num_rows, cells_per_row)
     return False
 
 
@@ -322,20 +356,21 @@ def get_xml_variant_without_xml_declaration(buf):
     # Using expat directly, rather than go through xml.sax, since using I
     # couldn't see how to give it a string, so used StringIO which failed
     # for some files curiously.
-    import xml.parsers.expat
+    from xml.parsers import expat
+    from xml.sax import SAXException
 
     class GotFirstTag(Exception):
         pass
 
     def start_element(name, attrs):
         raise GotFirstTag(name)
-    p = xml.parsers.expat.ParserCreate()
+    p = expat.ParserCreate()
     p.StartElementHandler = start_element
     try:
         p.Parse(buf)
     except GotFirstTag as e:
         top_level_tag_name = six.text_type(e).lower()
-    except xml.sax.SAXException as e:
+    except (SAXException, expat.ExpatError) as e:
         log.info('Sax parse error: %s %s', e, buf)
         return {'format': 'XML'}
 
@@ -352,7 +387,7 @@ def get_xml_variant_without_xml_declaration(buf):
     if top_level_tag_name.lower() in ('coveragedescriptions', 'capabilities') and \
             'xmlns="http://www.opengis.net/wcs/' in buf:
         top_level_tag_name = 'wcs'
-    format_tuple = ckan_helpers.resource_formats().get(top_level_tag_name)
+    format_tuple = toolkit.h.resource_formats().get(top_level_tag_name)
     if format_tuple:
         format_ = {'format': format_tuple[1]}
         log.info('XML variant detected: %s', format_tuple[2])
@@ -423,7 +458,7 @@ def get_zipped_format(filepath):
     top_scoring_extension_counts = defaultdict(int)  # extension: number_of_files
     for filepath in filepaths:
         extension = os.path.splitext(filepath)[-1][1:].lower()
-        format_tuple = ckan_helpers.resource_formats().get(extension)
+        format_tuple = toolkit.h.resource_formats().get(extension)
         if format_tuple:
             score = lib.resource_format_scores().get(format_tuple[1])
             if score is not None and score > top_score:
@@ -443,7 +478,7 @@ def get_zipped_format(filepath):
     top_extension = top_scoring_extension_counts[-1][0]
     log.info('Zip file\'s most popular extension is "%s" (All extensions: %r)',
              top_extension, top_scoring_extension_counts)
-    format_tuple = ckan_helpers.resource_formats()[top_extension]
+    format_tuple = toolkit.h.resource_formats()[top_extension]
     format_ = {'format': format_tuple[1],
                'container': 'ZIP'}
     log.info('Zipped file format detected: %s', format_tuple[2])
@@ -492,7 +527,7 @@ def run_bsd_file(filepath):
                       }
         if app_name in format_map:
             extension = format_map[app_name]
-            format_tuple = ckan_helpers.resource_formats()[extension]
+            format_tuple = toolkit.h.resource_formats()[extension]
             log.info('"file" detected file format: %s',
                      format_tuple[2])
             return {'format': format_tuple[1]}

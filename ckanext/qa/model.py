@@ -75,11 +75,10 @@ class QA(Base):
         c.resource_id = resource_id
 
         # Find the package_id for the resource.
-        q = model.Session.query(model.Package.id)
+        q = model.Session.query(model.Resource.package_id)
         if toolkit.check_ckan_version(max_version='2.2.99'):
             q = q.join(model.ResourceGroup)
-        q = q.join(model.Resource) \
-             .filter_by(id=c.resource_id)
+        q = q.filter_by(id=c.resource_id)
         result = q.first()
         if not result or not result[0]:
             raise Exception("Missing dataset")

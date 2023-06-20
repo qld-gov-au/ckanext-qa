@@ -17,10 +17,7 @@ def _get_str_params(request):
     """ Get parameters from the request. If 'str_params' is available,
     use that, otherwise just use 'params'.
     """
-    if hasattr(request, 'str_params'):
-        return request.str_params
-    else:
-        return request.params
+    return request.values
 
 
 class MockHTTPServer(object):
@@ -109,7 +106,7 @@ class MockEchoTestServer(MockHTTPServer):
         a 500 error response: 'http://localhost/?status=500'
 
         a 200 OK response, returning the function's docstring:
-        'http://localhost/?status=200;content-type=text/plain;content_var
+        'http://localhost/?status=200&content-type=text/plain&content_var
         =ckan.tests.lib.test_package_search:test_wsgi_app.__doc__'
 
     To specify content, use:
@@ -120,7 +117,7 @@ class MockEchoTestServer(MockHTTPServer):
 
     def __call__(self, environ, start_response):
 
-        from webob import Request
+        from flask import Request
         request = Request(environ)
         status = int(_get_str_params(request).get('status', '200'))
         if 'content_var' in _get_str_params(request):
@@ -136,12 +133,12 @@ class MockEchoTestServer(MockHTTPServer):
             status = 405
 
         headers = [
-            item
+            (str(item[0]), str(item[1]))
             for item in _get_str_params(request).items()
             if item[0] not in ('content', 'status')
         ]
         if 'length' in _get_str_params(request):
-            cl = _get_str_params(request).get('length')
+            cl = str(_get_str_params(request).get('length'))
             headers += [('Content-Length', cl)]
         elif content and 'no-content-length' not in _get_str_params(request):
             # Python 2 with old WebOb wants bytes,

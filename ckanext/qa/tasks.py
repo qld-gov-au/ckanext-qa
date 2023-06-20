@@ -129,10 +129,6 @@ def update_package_(package_id):
         save_qa_result(resource, qa_result)
         log.info('CKAN updated with openness score')
 
-    # Refresh the index for this dataset, so that it contains the latest
-    # qa info
-    _update_search_index(package.id)
-
 
 def update(ckan_ini_filepath=None, resource_id=None):
     """
@@ -162,16 +158,6 @@ def update_resource_(resource_id):
     save_qa_result(resource, qa_result)
     log.info('CKAN updated with openness score')
 
-    if toolkit.check_ckan_version(max_version='2.2.99'):
-        package = resource.resource_group.package
-    else:
-        package = resource.package
-    if package:
-        # Refresh the index for this dataset, so that it contains the latest
-        # qa info
-        _update_search_index(package.id)
-    else:
-        log.warning('Resource not connected to a package. Res: %r', resource)
     return json.dumps(qa_result)
 
 
@@ -407,7 +393,7 @@ def _download_url(url):
     tmp_file = get_tmp_file(url)
     length = 0
     try:
-        headers = {}
+        headers = {'Authorization': lib.get_job_apitoken()}
         response = get_response(url, headers)
 
         # download the file to a tempfile on disk
@@ -450,6 +436,7 @@ def _download_url(url):
 
 def get_response(url, headers):
     def get_url():
+        headers['Authorization'] = lib.get_job_apitoken()
         kwargs = {'headers': headers, 'timeout': DOWNLOAD_TIMEOUT,
                   'verify': SSL_VERIFY, 'stream': True}  # just gets the headers for now
         if 'ckan.download_proxy' in config:
@@ -563,20 +550,6 @@ def score_by_format_field(resource, score_reasons):
     score_reasons.append(_('Format field "%s" receives score: %s.') %
                          (format_field, score))
     return (score, format_tuple[1])
-
-
-def _update_search_index(package_id):
-    '''
-    Tells CKAN to update its search index for a given package.
-    '''
-    from ckan import model
-    from ckan.lib.search.index import PackageSearchIndex
-    package_index = PackageSearchIndex()
-    context_ = {'model': model, 'ignore_auth': True, 'session': model.Session,
-                'use_cache': False, 'validate': False}
-    package = toolkit.get_action('package_show')(context_, {'id': package_id})
-    package_index.index_package(package, defer_commit=False)
-    log.info('Search indexed %s', package['name'])
 
 
 def save_qa_result(resource, qa_result):
