@@ -5,14 +5,6 @@ from behaving.web.steps.url import when_i_visit_url
 import uuid
 
 
-# Monkey-patch Selenium 3 to handle Python 3.9
-import base64
-try:
-    from base64 import encodestring
-except Exception:
-    base64.encodestring = base64.encodebytes
-
-
 @step(u'I go to homepage')
 def go_to_home(context):
     when_i_visit_url(context, '/')
