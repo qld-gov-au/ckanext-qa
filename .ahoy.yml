@@ -39,7 +39,7 @@ commands:
       ahoy title "Building and starting Docker containers"
       sh bin/docker-compose.sh up -d "$@"
       echo "Initialising database schema"
-      ahoy cli '$APP_DIR/bin/init.sh'
+      ahoy cli '$APP_DIR/scripts/init.sh'
       echo "Waiting for containers to start listening..."
       ahoy cli "dockerize -wait tcp://ckan:5000 -timeout 1m"
       if sh bin/docker-compose.sh logs | grep -q "\[Error\]"; then exit 1; fi
@@ -128,7 +128,7 @@ commands:
       docker cp . $(sh bin/docker-compose.sh ps -q ckan):/srv/app/
       docker cp .docker/scripts $(sh bin/docker-compose.sh ps -q ckan):/srv/app/
       docker cp .docker/scripts/ckan_cli $(sh bin/docker-compose.sh ps -q ckan):/usr/bin/
-      ahoy cli 'chmod -v u+x /usr/bin/ckan_cli $APP_DIR/bin/*; cp -v .docker/test.ini $CKAN_INI'
+      ahoy cli 'chmod -v u+x /usr/bin/ckan_cli; cp -v .docker/test.ini $CKAN_INI'
 
   test-unit:
     usage: Run unit tests.
