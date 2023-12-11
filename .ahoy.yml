@@ -79,9 +79,9 @@ commands:
       CKAN_CONTAINER=$(sh bin/docker-compose.sh ps -q ckan)
       if [ "${#}" -ne 0 \]; then
         docker exec $CKAN_CONTAINER sh -c '. ${APP_DIR}/scripts/activate; cd $APP_DIR;'" $*"
-	else 
+      else 
         docker exec $CKAN_CONTAINER sh -c '. ${APP_DIR}/scripts/activate && cd $APP_DIR && sh'
-	fi
+      fi
 
   doctor:
     usage: Find problems with current project setup.
