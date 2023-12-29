@@ -7,6 +7,8 @@ from sqlalchemy import or_
 
 import ckan.model as model
 
+from ckanext.qa import tasks
+from ckanext.qa.sniff_format import sniff_file_format
 
 log = logging.getLogger(__name__)
 
@@ -17,7 +19,6 @@ def init_db():
 
 
 def update(args, queue):
-    from ckanext.qa import lib
     packages = []
     resources = []
     if len(args) > 0:
@@ -78,14 +79,14 @@ def update(args, queue):
 
     log.info('Queue: %s', queue)
     for package in packages:
-        lib.create_qa_update_package_task(package, queue)
+        tasks.create_qa_update_package_task(package, queue)
         log.info('Queuing dataset %s (%s resources)',
                  package.name, len(package.resources))
 
     for resource in resources:
         package = resource.resource_group.package
         log.info('Queuing resource %s/%s', package.name, resource.id)
-        lib.create_qa_update_task(resource, queue)
+        tasks.create_qa_update_task(resource, queue)
 
     log.info('Completed queueing')
 
@@ -178,7 +179,6 @@ def clean():
 
 
 def sniff(args):
-    from ckanext.qa.sniff_format import sniff_file_format
     if len(args) < 1:
         print('Not enough arguments', args)
         sys.exit(1)
