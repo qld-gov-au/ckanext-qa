@@ -46,6 +46,11 @@ jobs:
         run: .circleci/test.sh
         timeout-minutes: 20
 
+      - name: Retrieve logs
+        if: always()
+        run: ahoy logs
+        timeout-minutes: 1
+
       - name: Retrieve screenshots
         if: failure()
         run: .circleci/process-artifacts.sh
