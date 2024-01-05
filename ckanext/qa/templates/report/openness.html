@@ -97,7 +97,7 @@
             <td>{{ h.link_to(row['organization_title'], h.url_for('report.org', report_name='openness', organization=row['organization_name'])) }}</td>
           {% endif %}
           <td>{{ row['openness_score'] }}</td>
-          <td class="js-tooltip" title="{{ row['openness_score_reason'] }}">{{ h.truncate(row['openness_score_reason'], 150) }}</td>
+          <td class="js-tooltip" title="{{ row['openness_score_reason'] }}">{{ row['openness_score_reason']|truncate(150) if row['openness_score_reason'] }}</td>
         </tr>
       {% endfor %}
     </tbody>
