@@ -1,3 +1,4 @@
+Appium-Python-Client==2.10.1
 behave==1.2.6
 behaving==2.0.0
 ckanapi==4.3
