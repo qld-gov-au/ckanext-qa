@@ -27,4 +27,4 @@ sed "s|{CKAN_VERSION}|$CKAN_VERSION|g" .docker/Dockerfile-template.ckan \
     | sed "s|{PYTHON_VERSION}|$PYTHON_VERSION|g" \
     > .docker/Dockerfile.ckan
 
-ahoy build || (ahoy logs; exit 1)
+ahoy build
