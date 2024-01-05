@@ -5,10 +5,11 @@ ckantoolkit>=0.0.4
 factory-boy
 flake8==3.8.3
 flask
+flask-login>=0.6.3 # to fix Werkzeug compatibility
 mock
 pytest-ckan
 splinter>=0.13.0,<0.17
+werkzeug==2.2.3 # not directly required, pinned by Snyk to avoid a vulnerability
 
 -e git+https://github.com/qld-gov-au/ckanext-report.git@develop#egg=ckanext-report
 -e git+https://github.com/qld-gov-au/ckanext-archiver.git@develop#egg=ckanext-archiver
-werkzeug>=3.0.1 # not directly required, pinned by Snyk to avoid a vulnerability
