@@ -8,7 +8,7 @@ import uuid
 # Monkey-patch Selenium 3 to handle Python 3.9
 import base64
 try:
-    from base64 import encodestring
+    from base64 import encodestring  # noqa: F401
 except Exception:
     base64.encodestring = base64.encodebytes
 
