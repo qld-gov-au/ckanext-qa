@@ -1,35 +1,62 @@
-from behave import step
-from behaving.personas.steps import *  # noqa: F401, F403
-from behaving.web.steps import *  # noqa: F401, F403
-from behaving.web.steps.url import when_i_visit_url
 import uuid
 
+from behave import when, then
+from behaving.personas.steps import *  # noqa: F401, F403
+from behaving.web.steps import *  # noqa: F401, F403
 
 # Monkey-patch Selenium 3 to handle Python 3.9
 import base64
-try:
-    from base64 import encodestring  # noqa: F401
-except Exception:
+if not hasattr(base64, 'encodestring'):
     base64.encodestring = base64.encodebytes
 
+# Monkey-patch Behaving to handle function rename
+from behaving.web.steps import forms
+if not hasattr(forms, 'fill_in_elem_by_name'):
+    forms.fill_in_elem_by_name = forms.i_fill_in_field
 
-@step(u'I go to homepage')
+
+@when(u'I take a debugging screenshot')
+def debug_screenshot(context):
+    """ Take a screenshot only if debugging is enabled in the persona.
+    """
+    if context.persona and context.persona.get('debug') == 'True':
+        context.execute_steps(u"""
+            When I take a screenshot
+        """)
+
+
+@when(u'I go to homepage')
 def go_to_home(context):
-    when_i_visit_url(context, '/')
+    context.execute_steps(u"""
+        When I visit "/"
+    """)
 
 
-@step(u'I log in')
-def log_in(context):
-    assert context.persona
+@when(u'I go to register page')
+def go_to_register_page(context):
     context.execute_steps(u"""
         When I go to homepage
-        And I resize the browser to 1024x2048
-        And I click the link with text that contains "Log in"
+        And I press "Register"
+    """)
+
+
+@when(u'I log in')
+def log_in(context):
+    context.execute_steps(u"""
+        When I go to homepage
+        And I expand the browser height
+        And I press "Log in"
         And I log in directly
     """)
 
 
-@step(u'I log in directly')
+@when(u'I expand the browser height')
+def expand_height(context):
+    # Work around x=null bug in Selenium set_window_size
+    context.browser.driver.set_window_rect(x=0, y=0, width=1024, height=3072)
+
+
+@when(u'I log in directly')
 def log_in_directly(context):
     """
     This differs to the `log_in` function above by logging in directly to a page where the user login form is presented
@@ -37,14 +64,14 @@ def log_in_directly(context):
     :return:
     """
 
-    assert context.persona
+    assert context.persona, "A persona is required to log in, found [{}] in context. Have you configured the personas in before_scenario?".format(context.persona)
     context.execute_steps(u"""
         When I attempt to log in with password "$password"
-        Then I should see an element with xpath "//a[@title='Log out']"
+        Then I should see an element with xpath "//*[@title='Log out']/i[contains(@class, 'fa-sign-out')]"
     """)
 
 
-@step(u'I attempt to log in with password "{password}"')
+@when(u'I attempt to log in with password "{password}"')
 def attempt_login(context, password):
     assert context.persona
     context.execute_steps(u"""
@@ -54,29 +81,28 @@ def attempt_login(context, password):
     """.format(password))
 
 
-@step(u'I should see a login link')
+@then(u'I should see the login form')
 def login_link_visible(context):
     context.execute_steps(u"""
         Then I should see an element with xpath "//h1[contains(string(), 'Login')]"
     """)
 
 
-@step(u'I go to dataset page')
+@when(u'I go to dataset page')
 def go_to_dataset_page(context):
-    when_i_visit_url(context, '/dataset')
+    context.execute_steps(u"""
+        When I visit "/dataset"
+    """)
 
 
-@step(u'I go to organisation page')
+@when(u'I go to organisation page')
 def go_to_organisation_page(context):
-    when_i_visit_url(context, '/organization')
+    context.execute_steps(u"""
+        When I visit "/organization"
+    """)
 
 
-@step(u'I go to register page')
-def go_to_register_page(context):
-    when_i_visit_url(context, '/user/register')
-
-
-@step(u'I fill in title with random text')
+@when(u'I fill in title with random text')
 def title_random_text(context):
     assert context.persona
     context.execute_steps(u"""
@@ -84,12 +110,12 @@ def title_random_text(context):
     """.format(uuid.uuid4()))
 
 
-@step(u'I create a dataset with license {license} and resource file {file}')
+@when(u'I create a dataset with license {license} and resource file {file}')
 def create_dataset_json(context, license, file):
     create_dataset(context, license, 'JSON', file)
 
 
-@step(u'I create a dataset with license {license} and {file_format} resource file {file}')
+@when(u'I create a dataset with license {license} and {file_format} resource file {file}')
 def create_dataset(context, license, file_format, file):
     assert context.persona
     context.execute_steps(u"""
@@ -99,7 +125,7 @@ def create_dataset(context, license, file_format, file):
         And I fill in "version" with "1.0"
         And I fill in "author_email" with "test@me.com"
         And I execute the script "document.getElementById('field-license').value={license}"
-        Then I press "Add Data"
+        And I press "Add Data"
         And I execute the script "button = document.getElementById('resource-upload-button'); if (button) button.click();"
         And I attach the file {file} to "upload"
         And I fill in "name" with "Test Resource"
@@ -109,7 +135,7 @@ def create_dataset(context, license, file_format, file):
     """.format(license=license, file=file, file_format=file_format))
 
 
-@step(u'I should see data usability rating {score}')
+@then(u'I should see data usability rating {score}')
 def data_usability_rating_visible(context, score):
     context.execute_steps(u"""
         Then I should see an element with xpath "//div[contains(@class, 'openness-{0}')]"
