@@ -16,7 +16,7 @@ BASE_URL = 'http://ckan:5000/'
 # URL of remote Chrome instance.
 REMOTE_CHROME_URL = 'http://chrome:4444/wd/hub'
 
-# @see .docker/scripts/init.sh for credentials.
+# @see bin/init.sh for credentials.
 PERSONAS = {
     'SysAdmin': {
         'name': u'admin',
@@ -93,4 +93,5 @@ def before_scenario(context, scenario):
 
 
 def after_scenario(context, scenario):
+    os.system("ckan_cli jobs clear")
     benv.after_scenario(context, scenario)

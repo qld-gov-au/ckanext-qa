@@ -4,19 +4,18 @@
 #
 set -e
 
-. ${APP_DIR}/scripts/activate
+. ${APP_DIR}/bin/activate
 CLICK_ARGS="--yes" ckan_cli db clean
 ckan_cli db init
-ckan_cli db upgrade
 
 # Initialise the archiver database tables
-PASTER_PLUGIN=ckanext-archiver ckan_cli archiver init
+ckan_cli archiver init
 
 # Initialise the reporting database tables
-PASTER_PLUGIN=ckanext-report ckan_cli report initdb
+ckan_cli report initdb
 
 # Initialise the QA database tables
-PASTER_PLUGIN=ckanext-qa ckan_cli qa init
+ckan_cli qa init
 
 # Create some base test data
-. $APP_DIR/scripts/create-test-data.sh
+. $APP_DIR/bin/create-test-data.sh
