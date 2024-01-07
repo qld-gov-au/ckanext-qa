@@ -39,16 +39,21 @@ jobs:
         timeout-minutes: 2
 
       - name: Build
-        run: .circleci/build.sh
+        run: bin/build.sh
         timeout-minutes: 15
 
       - name: Test
-        run: .circleci/test.sh
+        run: bin/test.sh
         timeout-minutes: 20
+
+      - name: Retrieve logs
+        if: always()
+        run: ahoy logs
+        timeout-minutes: 1
 
       - name: Retrieve screenshots
         if: failure()
-        run: .circleci/process-artifacts.sh
+        run: bin/process-artifacts.sh
         timeout-minutes: 1
 
       - name: Upload screenshots

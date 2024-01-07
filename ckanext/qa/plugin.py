@@ -1,5 +1,6 @@
 # encoding: utf-8
 
+import json
 import logging
 
 import ckan.model as model
@@ -19,6 +20,13 @@ if p.toolkit.check_ckan_version("2.9"):
     from .plugin_mixins.flask_plugin import MixinPlugin
 else:
     from .plugin_mixins.pylons_plugin import MixinPlugin
+
+
+def _dict_to_string(possible_dict):
+    if isinstance(possible_dict, dict):
+        return json.dumps(possible_dict)
+    else:
+        return possible_dict
 
 
 class QAPlugin(MixinPlugin, p.SingletonPlugin, p.toolkit.DefaultDatasetForm, DefaultTranslation):
@@ -111,3 +119,19 @@ class QAPlugin(MixinPlugin, p.SingletonPlugin, p.toolkit.DefaultDatasetForm, Def
                 del qa_dict['package_id']
                 del qa_dict['resource_id']
                 res['qa'] = qa_dict
+
+    def before_index(self, pkg_dict):
+        return self.before_dataset_index(pkg_dict)
+
+    def before_dataset_index(self, pkg_dict):
+        """ Convert JSON fields to plain strings before indexing,
+        because Solr has unwanted special behaviour for JSON fields.
+        """
+        if 'qa' in pkg_dict:
+            pkg_dict['qa'] = _dict_to_string(pkg_dict.get('qa'))
+
+        for res in pkg_dict.get('resources', []):
+            if 'qa' in res:
+                res['qa'] = _dict_to_string(res.get('qa'))
+
+        return pkg_dict
