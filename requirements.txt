@@ -5,4 +5,3 @@ six>=1.12.0 #in ckancore
 
 ckanext-archiver
 ckanext-report
-validators>=0.21.0 # not directly required, pinned by Snyk to avoid a vulnerability
