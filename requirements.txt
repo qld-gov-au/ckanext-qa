@@ -5,3 +5,4 @@ six>=1.12.0 #in ckancore
 
 ckanext-archiver
 ckanext-report
+urllib3>=2.2.2 # not directly required, pinned by Snyk to avoid a vulnerability
