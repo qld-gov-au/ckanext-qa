@@ -16,8 +16,7 @@ import six.moves.urllib.parse as urlparse
 import requests
 
 from ckan.common import _
-from ckan.plugins import toolkit
-from ckan.plugins.toolkit import check_ckan_version, config, h as ckan_helpers
+from ckan.plugins.toolkit import config, enqueue_job, h as ckan_helpers
 
 from ckanext.archiver.model import Archival, Status
 from . import interfaces as qa_interfaces, lib, sniff_format
@@ -30,17 +29,6 @@ SSL_VERIFY = True
 MAX_CONTENT_LENGTH = int(config.get('ckanext.qa.max_content_length', 1e7))
 CHUNK_SIZE = 16 * 1024  # 16kb
 DOWNLOAD_TIMEOUT = 30
-
-if toolkit.check_ckan_version(max_version='2.6.99'):
-    from ckan.lib import celery_app
-
-    @celery_app.celery.task(name="qa.update_package")
-    def update_package_celery(*args, **kwargs):
-        update_package(*args, **kwargs)
-
-    @celery_app.celery.task(name="qa.update")
-    def update_celery(*args, **kwargs):
-        update(*args, **kwargs)
 
 
 class QAError(Exception):
@@ -200,10 +188,7 @@ def resource_score(resource):
     # It is important we do this check after the link check, otherwise
     # the link checker won't get the chance to see if the resource
     # is broken.
-    if toolkit.check_ckan_version(max_version='2.2.99'):
-        package = resource.resource_group.package
-    else:
-        package = resource.package
+    package = resource.package
     if score > 0 and not package.isopen():
         score_reason = _('License not open')
         score = 0
@@ -542,33 +527,23 @@ def custom_resource_score(resource, resource_score):
 
 def compat_enqueue(name, fn, queue, args=[], kwargs={}):
     u'''
-    Enqueue a background job using Celery or RQ.
+    Enqueue a background job using RQ.
     '''
-    try:
-        # Try to use RQ
-        from ckan.plugins.toolkit import enqueue_job
-        nice_name = name + " " + args[1] if (len(args) >= 2) else name
-        enqueue_job(fn, args=args, kwargs=kwargs, queue=queue, title=nice_name)
-    except ImportError:
-        # Fallback to Celery
-        import uuid
-        from ckan.lib.celery_app import celery
-        celery.send_task(name, args=args + [queue], task_id=six.text_type(uuid.uuid4()))
+    # Try to use RQ
+    nice_name = name + " " + args[1] if (len(args) >= 2) else name
+    enqueue_job(fn, args=args, kwargs=kwargs, queue=queue, title=nice_name)
 
 
 def create_qa_update_package_task(package, queue):
     compat_enqueue('qa.update_package', update_package, queue, kwargs={'package_id': package.id})
-    log.debug('QA of package put into celery queue %s: %s',
+    log.debug('QA of package put into job queue %s: %s',
               queue, package.name)
 
 
 def create_qa_update_task(resource, queue):
-    if check_ckan_version(max_version='2.2.99'):
-        package = resource.resource_group.package
-    else:
-        package = resource.package
+    package = resource.package
 
     compat_enqueue('qa.update', update, queue, kwargs={'resource_id': resource.id})
 
-    log.debug('QA of resource put into celery queue %s: %s/%s url=%r',
+    log.debug('QA of resource put into job queue %s: %s/%s url=%r',
               queue, package.name, resource.id, resource.url)

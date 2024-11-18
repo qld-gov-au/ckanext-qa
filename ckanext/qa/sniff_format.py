@@ -42,7 +42,7 @@ def sniff_file_format(filepath):
           }
     or None if it can\'t tell what it is.
 
-    Note, log is a logger, either a Celery one or a standard Python logging
+    Note, log is a logger, either an RQ one or a standard Python logging
     one.
     '''
     format_ = None
