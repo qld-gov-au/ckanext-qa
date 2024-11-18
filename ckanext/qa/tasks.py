@@ -16,7 +16,6 @@ import six.moves.urllib.parse as urlparse
 import requests
 
 from ckan.common import _
-from ckan.lib import i18n
 from ckan.plugins import toolkit
 from ckan.plugins.toolkit import check_ckan_version, config, h as ckan_helpers
 
@@ -57,45 +56,6 @@ OPENNESS_SCORE_DESCRIPTION = {
     4: 'Ontologically represented',
     5: 'Fully Linked Open Data as appropriate',
 }
-
-
-def register_translator():
-    # Register a translator in this thread so that
-    # the _() functions in logic layer can work
-    from paste.registry import Registry
-    from pylons import translator
-    from ckan.lib.cli import MockTranslator
-    global registry
-    registry = Registry()
-    registry.prepare()
-    global translator_obj
-    translator_obj = MockTranslator()
-    registry.register(translator, translator_obj)
-
-
-def load_translations(lang):
-    # Register a translator in this thread so that
-    # the _() functions in logic layer can work
-    from paste.registry import Registry
-    from pylons import translator
-    from pylons import request
-    registry = Registry()
-    registry.prepare()
-
-    class FakePylons:
-        translator = None
-    fakepylons = FakePylons()
-
-    class FakeRequest:
-        # Stores details of the translator
-        environ = {'pylons.pylons': fakepylons}
-    registry.register(request, FakeRequest())
-
-    # create translator
-    i18n.set_lang(lang)
-
-    # pull out translator and register it
-    registry.register(translator, fakepylons.translator)
 
 
 def update_package(ckan_ini_filepath=None, package_id=None):
@@ -200,12 +160,6 @@ def resource_score(resource):
     score = 0
     score_reason = ''
     format_ = None
-
-    try:
-        register_translator()
-    except ImportError:
-        # if we can't import Pylons, we don't need to
-        pass
 
     try:
         score_reasons = []  # a list of strings detailing how we scored it

@@ -158,7 +158,7 @@ To run the tests:
 
 3. From the CKAN root directory (not the extension root) do::
 
-    (pyenv)~/pyenv/src/ckan$ nosetests --ckan ../ckanext-qa/ckanext/qa/tests/ --with-pylons=../ckanext-qa/test-core.ini
+    (pyenv)~/pyenv/src/ckan$ pytest --ckan ../ckanext-qa/ckanext/qa/tests/ --ckan-ini=../ckanext-qa/test-core.ini
 
 If you get error "MagicException: None" then it may be due to libmagic needing an update. Try:
 
