@@ -3,11 +3,6 @@
 import os
 import logging
 
-from nose.tools import assert_equal
-from nose.plugins.skip import SkipTest
-
-from ckan import plugins as p
-
 from ckanext.qa.sniff_format import sniff_file_format, is_json, is_ttl, turtle_regex
 
 logging.basicConfig(level=logging.INFO)
@@ -34,14 +29,14 @@ class TestSniffFormat:
         sniffed_format = sniff_file_format(filepath)
         assert sniffed_format, "Expected {} but failed to sniff any format for file: {}".format(expected_format, filepath)
         expected_format_without_zip = expected_format.replace('.zip', '')
-        assert_equal(sniffed_format['format'].lower(), expected_format_without_zip)
+        assert sniffed_format['format'].lower() == expected_format_without_zip
 
         expected_container = None
         if expected_format.endswith('.zip'):
             expected_container = 'ZIP'
         elif expected_format.endswith('.gzip'):
             expected_container = 'ZIP'  # lumped together with zip for simplicity now
-        assert_equal(sniffed_format.get('container'), expected_container)
+        assert sniffed_format.get('container') == expected_container
 
     # def test_all(self):
     #    for format_extension, filepath in self.fixture_files:
@@ -100,8 +95,6 @@ class TestSniffFormat:
         self.check_format('odt')
 
     def test_odp(self):
-        if p.toolkit.check_ckan_version(max_version='2.3.99'):
-            raise SkipTest
         self.check_format('odp')
 
     def test_ppt(self):
@@ -201,8 +194,6 @@ class TestSniffFormat:
         self.check_format('wfs', 'blaby_get_capabilities_2_0.wfs')
 
     def test_wmts(self):
-        if p.toolkit.check_ckan_version(max_version='2.5.99'):
-            raise SkipTest
         self.check_format('wmts', 'ukho_bathymetry.wmts')
 
     def test_wcs(self):

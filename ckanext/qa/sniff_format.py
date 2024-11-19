@@ -19,10 +19,6 @@ log = logging.getLogger(__name__)
 
 
 def read_unknown_encoding(filepath, count, mode='r'):
-    if six.PY2:
-        # Py2 doesn't have the same encoding behaviour as Py3
-        with open(filepath, mode) as f:
-            return f.read(count)
     for encoding in ['utf-16', 'utf-8', 'iso-8859-1']:
         try:
             with open(filepath, mode=mode, encoding=encoding) as f:
@@ -46,7 +42,7 @@ def sniff_file_format(filepath):
           }
     or None if it can\'t tell what it is.
 
-    Note, log is a logger, either a Celery one or a standard Python logging
+    Note, log is a logger, either an RQ one or a standard Python logging
     one.
     '''
     format_ = None
@@ -84,6 +80,13 @@ def sniff_file_format(filepath):
             buf = read_unknown_encoding(filepath, 100)
             if is_iati(buf):
                 format_ = {'format': 'IATI'}
+        elif mime_type == 'application/javascript':
+            # Script-heavy HTML pages can be mistaken for JavaScript
+            buf = read_unknown_encoding(filepath, 100)
+            for tag in ['<!DOCTYPE html', '<html', '<head', '<body']:
+                if tag in buf:
+                    format_ = {'format': 'HTML'}
+                    break
 
         if not format_:
             format_tuple = toolkit.h.resource_formats().get(mime_type)
@@ -424,13 +427,8 @@ def get_zipped_format(filepath):
     popular extension.'''
     # just check filename extension of each file inside
     try:
-        # note: Cannot use "with" with a zipfile before python 2.7
-        #       so we have to close it manually.
-        zip = zipfile.ZipFile(filepath, 'r')
-        try:
+        with zipfile.ZipFile(filepath, 'r') as zip:
             filepaths = zip.namelist()
-        finally:
-            zip.close()
     except zipfile.BadZipfile as e:
         log.info('Zip file open raised error %s: %s',
                  e, e.args)

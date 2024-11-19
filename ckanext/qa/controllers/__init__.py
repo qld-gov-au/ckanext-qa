@@ -8,11 +8,7 @@ import mimetypes
 import posixpath
 import six
 import six.moves.urllib.parse as urlparse
-# this move isn't covered in the 'six' module
-if six.PY2:
-    from urllib import splittype
-else:
-    from urllib.parse import splittype
+from urllib.parse import splittype
 
 from ckan.plugins.toolkit import request
 from ckan.lib import helpers as ckan_helpers
