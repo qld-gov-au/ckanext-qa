@@ -26,8 +26,13 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        ckan-version: ["2.11", "2.10", 2.9]
+        ckan-version: ["2.10", 2.9]
         experimental: [false]
+        include:
+          - ckan-version: '2.11'
+            experimental: true  #testing compatibility for now
+          - ckan-version: 'master'
+            experimental: true  #master is unstable, good to know if we are compatible or not
 
     name: Test on CKAN ${{ matrix.ckan-version }}
     runs-on: ubuntu-latest
