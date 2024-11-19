@@ -80,6 +80,13 @@ def sniff_file_format(filepath):
             buf = read_unknown_encoding(filepath, 100)
             if is_iati(buf):
                 format_ = {'format': 'IATI'}
+        elif mime_type == 'application/javascript':
+            # Script-heavy HTML pages can be mistaken for JavaScript
+            buf = read_unknown_encoding(filepath, 100)
+            for tag in ['<!DOCTYPE html', '<html', '<head', '<body']:
+                if tag in buf:
+                    format_ = {'format': 'HTML'}
+                    break
 
         if not format_:
             format_tuple = toolkit.h.resource_formats().get(mime_type)

@@ -4,14 +4,13 @@ import requests
 import logging
 from six.moves.urllib.parse import quote
 import datetime
+import pytest
 
 from ckan import model
-from ckan.plugins.toolkit import get_action, h
+from ckan.plugins.toolkit import check_ckan_version, get_action, h
 try:
-    from ckan.tests.helpers import reset_db
     from ckan.tests import factories as ckan_factories
 except ImportError:
-    from ckan.new_tests.helpers import reset_db
     from ckan.new_tests import factories as ckan_factories
 
 import ckanext.qa.tasks
@@ -93,16 +92,20 @@ def _test_resource(url='anything', format='TXT', archived=True, cached=True, lic
     return model.Resource.get(res_id)
 
 
-class TestTask():
+@pytest.fixture
+def reset_qa_db(clean_db, migrate_db_for):
+    if check_ckan_version("2.11"):
+        migrate_db_for("activity")
+    archiver_model.init_tables(model.meta.engine)
+    qa_model.init_tables(model.meta.engine)
 
-    @classmethod
-    def setup_class(cls):
-        reset_db()
-        archiver_model.init_tables(model.meta.engine)
-        qa_model.init_tables(model.meta.engine)
+
+@pytest.mark.usefixtures("with_plugins", "reset_qa_db")
+class TestTask():
 
     def test_trigger_on_archival(cls):
         # create package
+        ckan_factories.User(name="test")
         context = {'model': model, 'ignore_auth': True, 'session': model.Session, 'user': 'test'}
         pkg = {'name': 'testpkg', 'owner_org': _test_org().id, 'license_id': 'uk-ogl', 'resources': [
             {'url': 'http://test.com/', 'format': 'CSV', 'description': 'Test'}
@@ -129,13 +132,11 @@ class TestTask():
         # TODO run job and check it actually ran...
 
 
+@pytest.mark.usefixtures("with_plugins", "reset_qa_db")
 class TestResourceScore():
 
     @classmethod
     def setup_class(cls):
-        reset_db()
-        archiver_model.init_tables(model.meta.engine)
-        qa_model.init_tables(model.meta.engine)
         cls.fake_resource = {
             'id': u'fake_resource_id',
             'url': 'http://remotesite.com/filename.csv',
@@ -298,12 +299,8 @@ class TestExtensionVariants:
         assert extension_variants('http://dept.gov.uk/coins-data-1996') == []
 
 
+@pytest.mark.usefixtures("with_plugins", "reset_qa_db")
 class TestSaveQaResult(object):
-    @classmethod
-    def setup_class(cls):
-        reset_db()
-        archiver_model.init_tables(model.meta.engine)
-        qa_model.init_tables(model.meta.engine)
 
     @classmethod
     def get_qa_result(cls, **kwargs):
@@ -329,12 +326,8 @@ class TestSaveQaResult(object):
         assert qa.updated, qa.updated
 
 
+@pytest.mark.usefixtures("with_plugins", "reset_qa_db")
 class TestUpdatePackage(object):
-    @classmethod
-    def setup_class(cls):
-        reset_db()
-        archiver_model.init_tables(model.meta.engine)
-        qa_model.init_tables(model.meta.engine)
 
     def test_simple(self):
         resource = {
@@ -353,12 +346,8 @@ class TestUpdatePackage(object):
         assert qa.openness_score_reason == 'License not open'
 
 
+@pytest.mark.usefixtures("with_plugins", "reset_qa_db")
 class TestUpdateResource(object):
-    @classmethod
-    def setup_class(cls):
-        reset_db()
-        archiver_model.init_tables(model.meta.engine)
-        qa_model.init_tables(model.meta.engine)
 
     def test_simple(self):
         resource = _test_resource(license_id='notspecified')
