@@ -61,7 +61,7 @@ To install ckanext-qa, ensure you have previously installed ckanext-archiver (v2
 
 4. Now create the database tables::
 
-     paster --plugin=ckanext-qa qa init --config=production.ini
+     ckan --config=production.ini qa init
 
 5. Add ``qa`` to the ``ckan.plugins`` setting BEFORE ``archiver`` in your CKAN
    config file (by default the config file is located at
@@ -89,7 +89,7 @@ NB You should upgrade ckanext-archiver and ckanext-qa from v0.1 to 2.x in one go
 
 3. Create the new database tables::
 
-     paster --plugin=ckanext-qa qa init --config=production.ini
+     ckan --config=production.ini qa init
 
 4. Install the normal and developer dependencies::
 
@@ -100,7 +100,7 @@ NB You should upgrade ckanext-archiver and ckanext-qa from v0.1 to 2.x in one go
 
      python ckanext/qa/bin/migrate_task_status.py --write production.ini
 
-6. (Re)start the `paster celeryd2 run` processes described for ckanext-archiver.
+6. (Re)start the `ckan job worker` processes described for ckanext-archiver.
 
 
 Configuration
@@ -120,25 +120,25 @@ The default value is `resource_format_openness_scores.json`)
 Running
 --------
 
-First, make sure that Celery is running for the priority and bulk queues. This is explained in the ckanext-archiver README:
+First, make sure that workers are running for the priority and bulk queues. This is explained in the ckanext-archiver README:
 
 [Using Archiver](https://github.com/ckan/ckanext-archiver#using-archiver)
 
-QA is performed when a dataset/resource is archived, or you can run it manually using a paster command::
+QA is performed when a dataset/resource is archived, or you can run it manually using a CLI command::
 
-    paster --plugin=ckanext-qa qa update [dataset] --config=production.ini
+    ckan --config=production.ini qa update [dataset]
 
 Here ``dataset`` is a CKAN dataset name or ID, or you can omit it to do the QA on all datasets.
 
 For a full list of manual commands run::
 
-    paster --plugin=ckanext-qa qa --help
+    ckan --config=production.ini qa --help
 
 Once the QA has run for a dataset, you will see the stars displayed on the dataset's web page, and the detected file format available when you call `package_show` for it, in the `qa` for the dataset and each resource.
 
 You can get an overall picture by generating an Openness report::
 
-    paster --plugin=ckanext-report report generate openness --config=production.ini
+    ckan --config=production.ini report generate openness
 
 And view it on your CKAN site at ``/report/openness``.
 
@@ -158,7 +158,7 @@ To run the tests:
 
 3. From the CKAN root directory (not the extension root) do::
 
-    (pyenv)~/pyenv/src/ckan$ nosetests --ckan ../ckanext-qa/ckanext/qa/tests/ --with-pylons=../ckanext-qa/test-core.ini
+    (pyenv)~/pyenv/src/ckan$ pytest --ckan ../ckanext-qa/ckanext/qa/tests/ --ckan-ini=../ckanext-qa/test-core.ini
 
 If you get error "MagicException: None" then it may be due to libmagic needing an update. Try:
 

@@ -8,7 +8,6 @@ from sqlalchemy.ext.declarative import declarative_base
 
 import ckan.model as model
 from ckan.lib import dictization
-from ckan.plugins import toolkit
 
 log = __import__('logging').getLogger(__name__)
 
@@ -76,8 +75,6 @@ class QA(Base):
 
         # Find the package_id for the resource.
         q = model.Session.query(model.Resource.package_id)
-        if toolkit.check_ckan_version(max_version='2.2.99'):
-            q = q.join(model.ResourceGroup)
         q = q.filter_by(id=c.resource_id)
         result = q.first()
         if not result or not result[0]:
