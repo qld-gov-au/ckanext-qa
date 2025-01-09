@@ -256,7 +256,7 @@ def _frictionless_extract_row_lengths(buf, format_, delimiter=None):
         resource_kwargs['dialect'] = dialect
     try:
         table = frictionless.Resource(six.ensure_binary(buf), **resource_kwargs)
-        for row in table:
+        for row in table.sample:
             row_lengths.append(len(row))
         return row_lengths
     except frictionless.exception.FrictionlessException as e:
