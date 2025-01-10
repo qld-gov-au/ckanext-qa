@@ -29,14 +29,8 @@ setup(
         # http://docs.ckan.org/en/latest/extensions/best-practices.html#add-third-party-libraries-to-requirements-txt
     ],
     entry_points='''
-    [paste.paster_command]
-    qa=ckanext.qa.commands:QACommand
-
     [ckan.plugins]
     qa=ckanext.qa.plugin:QAPlugin
-
-    [ckan.celery_task]
-    tasks=ckanext.qa.celery_import:task_imports
 
     [babel.extractors]
     ckan = ckan.lib.extract:extract_ckan

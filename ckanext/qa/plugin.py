@@ -12,14 +12,9 @@ from ckan.lib.plugins import DefaultTranslation
 from . import helpers, tasks
 from .logic import action, auth
 from .model import QA, aggregate_qa_for_a_dataset
+from .plugin_mixins.flask_plugin import MixinPlugin
 
 log = logging.getLogger(__name__)
-
-
-if p.toolkit.check_ckan_version("2.9"):
-    from .plugin_mixins.flask_plugin import MixinPlugin
-else:
-    from .plugin_mixins.pylons_plugin import MixinPlugin
 
 
 def _dict_to_string(possible_dict):
