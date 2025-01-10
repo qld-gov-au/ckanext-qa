@@ -128,9 +128,9 @@ def sniff_file_format(filepath):
             if is_json(buf):
                 format_ = {'format': 'JSON'}
             # is it CSV?
-            elif is_psv(buf):
+            elif is_psv(buf, filepath=filepath):
                 format_ = {'format': 'PSV'}
-            elif is_csv(buf):
+            elif is_csv(buf, filepath=filepath):
                 format_ = {'format': 'CSV'}
             # XML files without the "<?xml ... ?>" tag end up here
             elif is_xml_but_without_declaration(buf):
@@ -213,12 +213,12 @@ def is_json(buf):
     return True
 
 
-def is_csv(buf):
-    return _is_spreadsheet(buf, 'CSV')
+def is_csv(buf, **kwargs):
+    return _is_spreadsheet(buf, 'CSV', **kwargs)
 
 
-def is_psv(buf):
-    return _is_spreadsheet(buf, 'PSV', '|')
+def is_psv(buf, **kwargs):
+    return _is_spreadsheet(buf, 'PSV', '|', **kwargs)
 
 
 def _messytables_extract_row_lengths(buf, format_, delimiter=None):
@@ -245,7 +245,7 @@ def _messytables_extract_row_lengths(buf, format_, delimiter=None):
         return None
 
 
-def _frictionless_extract_row_lengths(buf, format_, delimiter=None):
+def _frictionless_extract_row_lengths(filepath, format_, delimiter=None):
     # Return a list containing the count of cells in each row,
     # using frictionless.Resource
     import frictionless
@@ -255,7 +255,7 @@ def _frictionless_extract_row_lengths(buf, format_, delimiter=None):
         dialect = frictionless.Dialect(descriptor={"delimiter": delimiter})
         resource_kwargs['dialect'] = dialect
     try:
-        table = frictionless.Resource(six.ensure_binary(buf), **resource_kwargs)
+        table = frictionless.Resource(filepath, **resource_kwargs)
         for row in table.sample or table.read_rows():
             row_lengths.append(len(row))
         return row_lengths
@@ -264,9 +264,9 @@ def _frictionless_extract_row_lengths(buf, format_, delimiter=None):
         return None
 
 
-def _is_spreadsheet(buf, format_, delimiter=None):
+def _is_spreadsheet(buf, format_, delimiter=None, **kwargs):
     if toolkit.check_ckan_version('2.10'):
-        row_lengths = _frictionless_extract_row_lengths(buf, format_, delimiter)
+        row_lengths = _frictionless_extract_row_lengths(kwargs['filepath'], format_, delimiter)
     else:
         row_lengths = _messytables_extract_row_lengths(buf, format_, delimiter)
     if not row_lengths:
