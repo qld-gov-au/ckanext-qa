@@ -256,11 +256,15 @@ def _frictionless_extract_row_lengths(buf, format_, delimiter=None):
         dialect = frictionless.Dialect(descriptor={"delimiter": delimiter})
         resource_kwargs['dialect'] = dialect
     try:
-        with tempfile.NamedTemporaryFile(delete_on_close=False) as tmpfile:
-            tmpfile.write(six.ensure_binary(buf))
-            tmpfile.close()
-            rows = frictionless.extract(tmpfile.name, **resource_kwargs)
-            log.debug("Found [%s] row(s) in buffer", len(rows))
+        # TODO: Use 'delete_on_close' once we can guarantee Python 3.12+
+        with tempfile.NamedTemporaryFile(delete=False) as tmpfile:
+            try:
+                tmpfile.write(six.ensure_binary(buf))
+                tmpfile.close()
+                rows = frictionless.extract(tmpfile.name, **resource_kwargs)
+                log.debug("Found [%s] row(s) in buffer", len(rows))
+            finally:
+                os.remove(tmpfile.name)
         for row in rows:
             row_lengths.append(len(row))
         return row_lengths
