@@ -7,6 +7,7 @@ import re
 import magic
 import six
 import subprocess
+import tempfile
 import xlrd
 import zipfile
 
@@ -213,11 +214,11 @@ def is_json(buf):
     return True
 
 
-def is_csv(buf):
+def is_csv(buf, **kwargs):
     return _is_spreadsheet(buf, 'CSV')
 
 
-def is_psv(buf):
+def is_psv(buf, **kwargs):
     return _is_spreadsheet(buf, 'PSV', '|')
 
 
@@ -255,8 +256,12 @@ def _frictionless_extract_row_lengths(buf, format_, delimiter=None):
         dialect = frictionless.Dialect(descriptor={"delimiter": delimiter})
         resource_kwargs['dialect'] = dialect
     try:
-        table = frictionless.Resource(six.ensure_binary(buf), **resource_kwargs)
-        for row in table:
+        with tempfile.NamedTemporaryFile(delete_on_close=False) as tmpfile:
+            tmpfile.write(six.ensure_binary(buf))
+            tmpfile.close()
+            rows = frictionless.extract(tmpfile.name, **resource_kwargs)
+            log.debug("Found [%s] row(s) in buffer", len(rows))
+        for row in rows:
             row_lengths.append(len(row))
         return row_lengths
     except frictionless.exception.FrictionlessException as e:
