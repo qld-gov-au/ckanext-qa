@@ -7,6 +7,7 @@ import re
 import magic
 import six
 import subprocess
+import tempfile
 import xlrd
 import zipfile
 
@@ -128,9 +129,9 @@ def sniff_file_format(filepath):
             if is_json(buf):
                 format_ = {'format': 'JSON'}
             # is it CSV?
-            elif is_psv(buf, filepath=filepath):
+            elif is_psv(buf):
                 format_ = {'format': 'PSV'}
-            elif is_csv(buf, filepath=filepath):
+            elif is_csv(buf):
                 format_ = {'format': 'CSV'}
             # XML files without the "<?xml ... ?>" tag end up here
             elif is_xml_but_without_declaration(buf):
@@ -214,11 +215,11 @@ def is_json(buf):
 
 
 def is_csv(buf, **kwargs):
-    return _is_spreadsheet(buf, 'CSV', **kwargs)
+    return _is_spreadsheet(buf, 'CSV')
 
 
 def is_psv(buf, **kwargs):
-    return _is_spreadsheet(buf, 'PSV', '|', **kwargs)
+    return _is_spreadsheet(buf, 'PSV', '|')
 
 
 def _messytables_extract_row_lengths(buf, format_, delimiter=None):
@@ -245,7 +246,7 @@ def _messytables_extract_row_lengths(buf, format_, delimiter=None):
         return None
 
 
-def _frictionless_extract_row_lengths(filepath, format_, delimiter=None):
+def _frictionless_extract_row_lengths(buf, format_, delimiter=None):
     # Return a list containing the count of cells in each row,
     # using frictionless.Resource
     import frictionless
@@ -255,8 +256,16 @@ def _frictionless_extract_row_lengths(filepath, format_, delimiter=None):
         dialect = frictionless.Dialect(descriptor={"delimiter": delimiter})
         resource_kwargs['dialect'] = dialect
     try:
-        table = frictionless.Resource(filepath, **resource_kwargs)
-        for row in table.sample or table.read_rows():
+        # TODO: Use 'delete_on_close' once we can guarantee Python 3.12+
+        with tempfile.NamedTemporaryFile(delete=False) as tmpfile:
+            try:
+                tmpfile.write(six.ensure_binary(buf))
+                tmpfile.close()
+                rows = frictionless.extract(tmpfile.name, **resource_kwargs)
+                log.debug("Found [%s] row(s) in buffer", len(rows))
+            finally:
+                os.remove(tmpfile.name)
+        for row in rows:
             row_lengths.append(len(row))
         return row_lengths
     except frictionless.exception.FrictionlessException as e:
@@ -264,9 +273,9 @@ def _frictionless_extract_row_lengths(filepath, format_, delimiter=None):
         return None
 
 
-def _is_spreadsheet(buf, format_, delimiter=None, **kwargs):
+def _is_spreadsheet(buf, format_, delimiter=None):
     if toolkit.check_ckan_version('2.10'):
-        row_lengths = _frictionless_extract_row_lengths(kwargs['filepath'], format_, delimiter)
+        row_lengths = _frictionless_extract_row_lengths(buf, format_, delimiter)
     else:
         row_lengths = _messytables_extract_row_lengths(buf, format_, delimiter)
     if not row_lengths:
