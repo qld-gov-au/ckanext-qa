@@ -1,5 +1,4 @@
 xlrd==1.2.0
-frictionless==5.18.*
 progressbar==2.5
 six>=1.12.0 #in ckancore
 
