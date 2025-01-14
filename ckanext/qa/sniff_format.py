@@ -1,13 +1,13 @@
 # encoding: utf-8
 
 from collections import defaultdict
+import csv
 import logging
 import os
 import re
 import magic
 import six
 import subprocess
-import tempfile
 import xlrd
 import zipfile
 
@@ -222,62 +222,20 @@ def is_psv(buf, **kwargs):
     return _is_spreadsheet(buf, 'PSV', '|')
 
 
-def _messytables_extract_row_lengths(buf, format_, delimiter=None):
-    # Return a list containing the count of cells in each row,
-    # using messytables.CSVTableSet
-    import messytables
-    buf_rows = six.BytesIO(six.ensure_binary(buf))
-    if delimiter:
-        table_set = messytables.CSVTableSet(buf_rows, delimiter=delimiter)
-    else:
-        table_set = messytables.CSVTableSet(buf_rows)
-    try:
-        table = table_set.tables[0]
-        row_lengths = []
-        # Iterate through the table.sample (sample because otherwise
-        # it will barf if there is an unclosed string at the end)
-        for row in table.sample:
-            if row:
-                # Must have enough cells
-                row_lengths.append(len(row))
-        return row_lengths
-    except messytables.ReadError as e:
-        log.info('Not %s - unable to parse as a table: %s', format_, e)
-        return None
-
-
-def _frictionless_extract_row_lengths(buf, format_, delimiter=None):
-    # Return a list containing the count of cells in each row,
-    # using frictionless.Resource
-    import frictionless
-    resource_kwargs = {"format": "csv"}
+def _extract_row_lengths(buf, format_, delimiter=None):
+    # Return a list containing the count of cells in each row, if CSV
     row_lengths = []
-    if delimiter:
-        dialect = frictionless.Dialect(descriptor={"delimiter": delimiter})
-        resource_kwargs['dialect'] = dialect
     try:
-        # TODO: Use 'delete_on_close' once we can guarantee Python 3.12+
-        with tempfile.NamedTemporaryFile(delete=False) as tmpfile:
-            try:
-                tmpfile.write(six.ensure_binary(buf))
-                tmpfile.close()
-                rows = frictionless.extract(tmpfile.name, **resource_kwargs)
-                log.debug("Found [%s] row(s) in buffer", len(rows))
-            finally:
-                os.remove(tmpfile.name)
-        for row in rows:
+        for row in csv.reader(six.StringIO(buf), delimiter=delimiter or ','):
             row_lengths.append(len(row))
         return row_lengths
-    except frictionless.exception.FrictionlessException as e:
+    except csv.Error as e:
         log.info('Not %s - unable to parse as a table: %s', format_, e)
         return None
 
 
 def _is_spreadsheet(buf, format_, delimiter=None):
-    if toolkit.check_ckan_version('2.10'):
-        row_lengths = _frictionless_extract_row_lengths(buf, format_, delimiter)
-    else:
-        row_lengths = _messytables_extract_row_lengths(buf, format_, delimiter)
+    row_lengths = _extract_row_lengths(buf, format_, delimiter)
     if not row_lengths:
         return False
 
