@@ -1,0 +1,8 @@
+{% ckan_extends %}
+
+{% block package_notes %}
+    <section>
+      {{ h.qa_openness_stars_dataset_html(pkg) }}
+    </section>
+ {{ super() }}
+{% endblock %}
