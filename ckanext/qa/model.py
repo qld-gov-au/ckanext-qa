@@ -6,12 +6,12 @@ from sqlalchemy import Column
 from sqlalchemy import types
 from sqlalchemy.ext.declarative import declarative_base
 
-import ckan.model as model
+from ckan import model
 from ckan.lib import dictization
 
 log = __import__('logging').getLogger(__name__)
 
-Base = declarative_base()
+Base = declarative_base(metadata=model.meta.metadata)
 
 
 def make_uuid():
@@ -113,5 +113,5 @@ def aggregate_qa_for_a_dataset(qa_objs):
 
 
 def init_tables(engine):
-    Base.metadata.create_all(engine)
+    model.meta.metadata.create_all(model.meta.engine)
     log.info('QA database tables are set-up')
