@@ -97,7 +97,7 @@ def sniff_file_format(filepath):
         if not format_:
             if mime_type.startswith('text/') or mime_type == 'application/csv':
                 # is it JSON?
-                buf = read_unknown_encoding(filepath, 10000, mode='rtU')
+                buf = read_unknown_encoding(filepath, 10000, mode='rt')
                 if is_json(buf):
                     format_ = {'format': 'JSON'}
                 # is it CSV?
@@ -125,7 +125,7 @@ def sniff_file_format(filepath):
 
         if format_['format'] == 'TXT':
             # is it JSON?
-            buf = read_unknown_encoding(filepath, 10000, mode='rtU')
+            buf = read_unknown_encoding(filepath, 10000, mode='rt')
             if is_json(buf):
                 format_ = {'format': 'JSON'}
             # is it CSV?
