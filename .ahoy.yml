@@ -40,7 +40,15 @@ commands:
       echo "Initialising database schema"
       ahoy cli '"${APP_DIR}"/bin/init.sh'
       echo "Waiting for containers to start listening..."
-      ahoy cli "dockerize -wait tcp://ckan:5000 -timeout 1m"
+      for i in `seq 1 60`; do
+        if (ahoy cli "timeout 1 bash -c 'cat < /dev/null > /dev/tcp/ckan/5000'"); then
+          echo "CKAN became ready on attempt $i"
+          break
+        else
+          echo "CKAN not yet ready, retrying (attempt $i)..."
+          sleep 1
+        fi
+      done
       if sh bin/docker-compose.sh logs | grep -q "\[Error\]"; then exit 1; fi
       if sh bin/docker-compose.sh logs | grep -q "Exception"; then exit 1; fi
       docker ps -a --filter name=^/${COMPOSE_PROJECT_NAME}_
@@ -152,8 +160,14 @@ commands:
       ahoy start-mailmock &
       sleep 5
       JUNIT_OUTPUT="--junit --junit-directory=test/junit/"
-      ahoy cli "behave $JUNIT_OUTPUT -k ${*:-test/features} --tags=-comment-report" || \
+      if [ "$BEHAVE_TAG" = "" ]; then
+        ahoy cli "behave $JUNIT_OUTPUT --no-skipped ${*:-test/features} --tags=-comment-report" || \
       [ "${ALLOW_BDD_FAIL:-0}" -eq 1 ]
+      else
+        # run tests with the specified tag
+        ahoy cli "behave $JUNIT_OUTPUT --no-skipped ${*:-test/features} --tags=$BEHAVE_TAG" \
+          || [ "${ALLOW_BDD_FAIL:-0}" -eq 1 ]
+      fi
       ahoy stop-mailmock
       ahoy stop-ckan-job-workers
 
