@@ -113,5 +113,5 @@ def aggregate_qa_for_a_dataset(qa_objs):
 
 
 def init_tables(engine):
-    model.meta.metadata.create_all(model.meta.engine)
+    model.meta.metadata.create_all(engine)
     log.info('QA database tables are set-up')

@@ -5,7 +5,7 @@ import json
 
 from sqlalchemy import or_
 
-import ckan.model as model
+from ckan import model
 
 from ckanext.qa import tasks
 from ckanext.qa.sniff_format import sniff_file_format
