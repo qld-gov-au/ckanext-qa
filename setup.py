@@ -3,7 +3,7 @@ from setuptools import setup, find_packages
 
 setup(
     name='ckanext-qa',
-    version='2.0',
+    version='2.0.3',
     description='Quality Assurance plugin for CKAN',
     long_description='',
     classifiers=[],

@@ -1,5 +1,4 @@
 import datetime
-import six
 import uuid
 
 from behave import when, then
@@ -55,7 +54,13 @@ def log_in(context):
 @when(u'I expand the browser height')
 def expand_height(context):
     # Work around x=null bug in Selenium set_window_size
-    context.browser.driver.set_window_rect(x=0, y=0, width=1024, height=3072)
+    context.browser.driver.set_window_rect(x=0, y=0, width=1366, height=3072)
+
+
+@when(u'I narrow the browser to mobile width')
+def narrow_width(context):
+    # Work around x=null bug in Selenium set_window_size
+    context.browser.driver.set_window_rect(x=0, y=0, width=900, height=3072)
 
 
 @when(u'I log in directly')
@@ -108,8 +113,8 @@ def go_to_organisation_page(context):
 @when(u'I fill in "{name}" with "{value}" if present')
 def fill_in_field_if_present(context, name, value):
     context.execute_steps(u"""
-        When I execute the script "field = $('#field-{0}'); if (!field.length) field = $('#{0}'); if (!field.length) field = $('[name={0}]'); field.val('{1}'); field.keyup();"
-    """.format(name, value))
+        When I execute the script "field = $('#{0}'); if (!field.length) field = $('[name={0}]'); if (!field.length) field = $('#field-{0}'); field.val('{1}'); field.keyup();"
+    """.format(name, value.replace("'", r"\'")))
 
 
 @when(u'I clear the URL field')
@@ -125,7 +130,7 @@ def confirm_dialog_if_present(context, text):
     if context.browser.is_element_present_by_xpath(dialog_xpath):
         parent_xpath = dialog_xpath
     elif context.browser.is_text_present(text):
-        parent_xpath = "//div[contains(string(), '{0}')]/..".format(text)
+        parent_xpath = "//div[contains(string(), '{0}')]".format(text)
     else:
         return
     button_xpath = parent_xpath + "//button[contains(@class, 'btn-primary')]"
@@ -146,7 +151,7 @@ def confirm_dataset_deletion_dialog_if_present(context):
         """)
     # Press the Confirm button whether it is in a dialog or a page
     context.execute_steps(u"""
-        When I press the element with xpath "//button[contains(@class, 'btn-primary') and contains(string(), 'Confirm') ]"
+        When I press the element with xpath "//div[@id='content']//button[contains(@class, 'btn-primary') and contains(string(), 'Confirm') ]"
         Then I should see "Dataset has been deleted"
     """)
 
@@ -176,13 +181,24 @@ def go_to_new_resource_form(context, name):
 
 @when(u'I fill in title with random text')
 def title_random_text(context):
-    assert context.persona
     context.execute_steps(u"""
-        When I fill in "title" with "Test Title {0}"
-        And I fill in "name" with "test-title-{0}" if present
-        And I set "last_generated_title" to "Test Title {0}"
-        And I set "last_generated_name" to "test-title-{0}"
-    """.format(uuid.uuid4()))
+        When I fill in title with random text starting with "Test Title "
+    """)
+
+
+@when(u'I fill in title with random text starting with "{prefix}"')
+def title_random_text_with_prefix(context, prefix):
+    random_text = str(uuid.uuid4())
+    title = prefix + random_text
+    name = prefix.lower().replace(" ", "-") + random_text
+    assert context.persona
+    context.execute_steps(f"""
+        When I fill in "title" with "{title}"
+        And I fill in "name" with "{name}" if present
+        And I set "last_generated_title" to "{title}"
+        And I set "last_generated_name" to "{name}"
+        And I take a debugging screenshot
+    """)
 
 
 @when(u'I edit the "{name}" dataset')
@@ -200,12 +216,21 @@ def select_licence(context, licence_id):
     """.format(licence_id))
 
 
+@when(u'I select the organisation with title "{title}"')
+def select_organisation(context, title):
+    # Organisation requires special interaction due to fancy JavaScript
+    context.execute_steps(u"""
+        When I execute the script "org_uuid=$('#field-organizations').find('option:contains({0})').val(); $('#field-organizations').val(org_uuid).trigger('change')"
+        And I take a debugging screenshot
+    """.format(title))
+
+
 @when(u'I enter the resource URL "{url}"')
 def enter_resource_url(context, url):
     if url != "default":
         context.execute_steps(u"""
             When I clear the URL field
-            When I execute the script "$('#resource-edit [name=url]').val('{0}')"
+            And I execute the script "$('#resource-edit [name=url]').val('{0}')"
         """.format(url))
 
 
@@ -242,7 +267,7 @@ def fill_in_default_link_resource_fields(context):
 @when(u'I upload "{file_name}" of type "{file_format}" to resource')
 def upload_file_to_resource(context, file_name, file_format):
     context.execute_steps(u"""
-        When I execute the script "$('#resource-upload-button').trigger('click');"
+        When I execute the script "$('.resource-upload-field .btn-remove-url').trigger('click'); $('#resource-upload-button').trigger('click');"
         And I attach the file "{file_name}" to "upload"
         # Don't quote the injected string since it can have trailing spaces
         And I execute the script "document.getElementById('field-format').value='{file_format}'"
@@ -256,7 +281,7 @@ def _parse_params(param_string):
     for param in param_string.split("::"):
         entry = param.split("=", 1)
         params[entry[0]] = entry[1] if len(entry) > 1 else ""
-    return six.iteritems(params)
+    return params.items()
 
 
 # Enter a JSON schema value
@@ -289,8 +314,8 @@ def _create_dataset_from_params(context, params):
         if key == "owner_org":
             # Owner org uses UUIDs as its values, so we need to rely on displayed text
             context.execute_steps(u"""
-                When I select by text "{1}" from "{0}"
-            """.format(key, value))
+                When I select the organisation with title "{0}"
+            """.format(value))
         elif key in ["private"]:
             context.execute_steps(u"""
                 When I select "{1}" from "{0}"

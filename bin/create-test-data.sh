@@ -19,6 +19,10 @@ add_user_if_needed () {
         password="${4:-Password123!}"
 }
 
+api_call () {
+    wget -O - --header="Authorization: ${API_KEY}" --post-data "$1" ${CKAN_ACTION_URL}/$2
+}
+
 add_user_if_needed "$CKAN_USER_NAME" "$CKAN_DISPLAY_NAME" "$CKAN_USER_EMAIL"
 ckan_cli sysadmin add "${CKAN_USER_NAME}"
 
@@ -42,10 +46,6 @@ add_user_if_needed test_org_editor "Test Editor" test_org_editor@localhost
 add_user_if_needed test_org_member "Test Member" test_org_member@localhost
 
 echo "Creating ${TEST_ORG_TITLE} organisation:"
-
-api_call () {
-    wget -O - --header="Authorization: ${API_KEY}" --post-data "$1" ${CKAN_ACTION_URL}/$2
-}
 
 TEST_ORG=$( \
     api_call '{"name": "'"${TEST_ORG_NAME}"'", "title": "'"${TEST_ORG_TITLE}"'",

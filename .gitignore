@@ -76,3 +76,4 @@ ckanext-report/
 
 # generated from template
 Dockerfile.ckan
+docker-compose.yml
